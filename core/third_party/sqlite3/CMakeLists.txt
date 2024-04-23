@@ -1,0 +1,7 @@
+project(sqlite3 VERSION 3.45.3 LANGUAGES C)
+
+set(SQLITE3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" PARENT_SCOPE)
+
+add_library(sqlite3 SHARED
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sqlite3.c
+)
