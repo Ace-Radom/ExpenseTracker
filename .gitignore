@@ -52,3 +52,9 @@ compile_commands.json
 *creator.user*
 
 *_qmlcache.qrc
+
+# personal
+/bin
+/test
+test*
+*.code-workspace
