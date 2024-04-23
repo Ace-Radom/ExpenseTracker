@@ -55,6 +55,7 @@ compile_commands.json
 
 # personal
 /bin
+/build
 /test
 test*
 *.code-workspace
