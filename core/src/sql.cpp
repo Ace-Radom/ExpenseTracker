@@ -57,7 +57,31 @@ utils::sql::~sql(){
 }
 
 /**
- * Create tables in database
+ * Write database header datas.
+ * Count header length before calling this function to make sure that datas won't be overwritten accidentally!!!
+ */
+void utils::sql::write_header( const std::string& __s_name , int __i_create_time , const std::string& __s_description , const std::string& __s_owners , bool __b_enable_balance ){
+    if ( this -> _get_table_len( HEADER ) > 0 )
+    {
+        this -> _exec_sqlcmd(
+            R"(DELETE FROM HEADER;)" ,
+            ERR_SQL_CLEAN_UP_TABLE_FAILED
+        );
+    } // if header already contains datas, erase them (count header before write it!!!)
+    std::ostringstream oss;
+    oss << "INSERT INTO HEADER VALUES ('" << __s_name << "',"
+                                          << __i_create_time << ",'"
+                                          << __s_description << "','"
+                                          << __s_owners << "',"
+                                          << ( __b_enable_balance ? "1" : "0" ) << ");";
+    this -> _exec_sqlcmd(
+        oss.str() ,
+        ERR_SQL_INSERT_HEADER_TABLE_FAILED
+    );
+}
+
+/**
+ * Create tables in database.
  */
 void utils::sql::_create_tables(){
     this -> _exec_sqlcmd( 
@@ -172,6 +196,26 @@ bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
     } // illegal data table
 
     return true;
+}
+
+unsigned int utils::sql::_get_table_len( utils::sql::_tablename_t __e_table ){
+    std::string sqlcmd = R"(SELECT COUNT(*) FROM )";
+    switch ( __e_table )
+    {
+        case HEADER: sqlcmd.append( "HEADER;" ); break;
+        case DATA:   sqlcmd.append( "DATA;" );   break;
+        default: 
+            throw sql_exception( ERR_SQL_UNEXPECTED , "database table name enum error" );
+            break;
+    }
+    int len;
+    this -> _exec_sqlcmd(
+        sqlcmd ,
+        &callbacks::sqlcb_get_table_length ,
+        ( void* ) &len ,
+        ERR_SQL_GET_TABLE_LENGTH_FAILED
+    );
+    return len;
 }
 
 /**

@@ -1,6 +1,7 @@
 #include"sql_callbacks.h"
 
 #include<iostream>
+#include<string>
 #include<string.h>
 
 namespace cbs = rena::et::core::utils::callbacks;
@@ -101,5 +102,12 @@ int cbs::sqlcb_check_data_table_col( void* __p_v_data , int __i_argc , char** __
     {
         checklist -> unknown++;
     }
+    return 0;
+}
+
+int cbs::sqlcb_get_table_length( void* __p_v_data , int __i_argc , char** __pp_c_argv , char** __pp_c_azcolname ){
+    int* len = ( int* ) __p_v_data;
+    *len = std::stoi( __pp_c_argv[0] );
+    // this shouldn't throw exception: this callback should only be used with `SELECT COUNT(*) FROM {TABLE}` cmd
     return 0;
 }

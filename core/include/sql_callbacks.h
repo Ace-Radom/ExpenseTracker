@@ -39,6 +39,8 @@ namespace rena::et::core::utils::callbacks {
 
     int sqlcb_check_data_table_col( void* __p_v_data , int __i_argc , char** __pp_c_argv , char** __pp_c_azcolname );
 
+    int sqlcb_get_table_length( void* __p_v_data , int __i_argc , char** __pp_c_argv , char** __pp_c_azcolname );
+
 } // namespace rena::et::core::utils::callbacks
 
 #endif // _EXPENSETRACKER_CORE_SQL_CALLBACKS_H_
