@@ -54,6 +54,7 @@ compile_commands.json
 *_qmlcache.qrc
 
 # personal
+/.cache
 /bin
 /build
 /test
