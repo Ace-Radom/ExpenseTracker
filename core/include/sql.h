@@ -7,6 +7,7 @@
 #include"sqlite3.h"
 
 #include"exception.h"
+#include"sql_types.h"
 
 #define ERR_SQL_NOT_OPEN                                1
 #define ERR_SQL_CREATE_HEADER_TABLE_FAILED              2
@@ -17,6 +18,7 @@
 #define ERR_SQL_CLEAN_UP_TABLE_FAILED                   7
 #define ERR_SQL_INSERT_HEADER_TABLE_FAILED              8
 #define ERR_SQL_INSERT_DATA_TABLE_FAILED                9
+#define ERR_SQL_GET_HEADER_DATA_FAILED                 10
 #define ERR_SQL_UNEXPECTED                            255
 
 namespace rena::et::core::utils {
@@ -24,31 +26,6 @@ namespace rena::et::core::utils {
     DECLARE_CORE_EXCEPTION( sql_exception );
     
     typedef int ( *sql_callback )( void* , int , char** , char** );
-
-    typedef struct {
-        std::string name;
-        int create_time;
-        std::string description;
-        std::string owners;
-        bool enable_balance;
-    } header_dat_t;
-
-    typedef struct {
-        struct {
-            unsigned long time_stamp;
-            unsigned short time_zone;
-        } data_record_time;
-        struct {
-            double payment;
-            unsigned short currency_type;
-            std::string description;
-        } main_data_body;
-        struct {
-            double currency_exchange;
-            double total_payment_after_exchange;
-            double balance;
-        } pre_calculated_datas;
-    } data_dat_t;
 
     class sql {
 
@@ -58,6 +35,7 @@ namespace rena::et::core::utils {
 
             void write_header( const header_dat_t& __shd_data );
             void write_data( const data_dat_t& __sdd_data );
+            const header_dat_t* get_header();
 
         protected:
             typedef enum {

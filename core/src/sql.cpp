@@ -105,6 +105,22 @@ void utils::sql::write_data( const utils::data_dat_t& __sdd_data ){
 }
 
 /**
+ * Get database header data. Remember to delete the data you get!!!
+ */
+const utils::header_dat_t* utils::sql::get_header(){
+    assert( this -> _get_table_len( HEADER ) == 1 );
+
+    header_dat_t* data = new header_dat_t;
+    this -> _exec_sqlcmd(
+        R"(SELECT * FROM HEADER;)" ,
+        &callbacks::sqlcb_get_header_data ,
+        ( void* ) data ,
+        ERR_SQL_GET_HEADER_DATA_FAILED
+    );
+    return data;
+}
+
+/**
  * Create tables in database.
  */
 void utils::sql::_create_tables(){
@@ -139,6 +155,9 @@ CREATE TABLE DATA(
     return;
 }
 
+/**
+ * Check database legality / format. (table list, header table cols, data table cols)
+ */
 bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
     assert( __out_p_s_errmsg );
 
