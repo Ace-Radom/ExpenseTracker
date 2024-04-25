@@ -25,13 +25,39 @@ namespace rena::et::core::utils {
     
     typedef int ( *sql_callback )( void* , int , char** , char** );
 
+    typedef struct {
+        std::string name;
+        int create_time;
+        std::string description;
+        std::string owners;
+        bool enable_balance;
+    } header_dat_t;
+
+    typedef struct {
+        struct {
+            unsigned long time_stamp;
+            unsigned short time_zone;
+        } data_record_time;
+        struct {
+            double payment;
+            unsigned short currency_type;
+            std::string description;
+        } main_data_body;
+        struct {
+            double currency_exchange;
+            double total_payment_after_exchange;
+            double balance;
+        } pre_calculated_datas;
+    } data_dat_t;
+
     class sql {
 
         public:
             sql( std::filesystem::path __p_dbpath );
             ~sql();
 
-            void write_header( const std::string& __s_name , int __i_create_time , const std::string& __s_description , const std::string& __s_owners , bool __b_enable_balance );
+            void write_header( const header_dat_t& __shd_data );
+            void write_data( const data_dat_t& __sdd_data );
 
         protected:
             typedef enum {

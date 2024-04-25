@@ -60,7 +60,7 @@ utils::sql::~sql(){
  * Write database header datas.
  * Count header length before calling this function to make sure that datas won't be overwritten accidentally!!!
  */
-void utils::sql::write_header( const std::string& __s_name , int __i_create_time , const std::string& __s_description , const std::string& __s_owners , bool __b_enable_balance ){
+void utils::sql::write_header( const utils::header_dat_t& __shd_data ){
     if ( this -> _get_table_len( HEADER ) > 0 )
     {
         this -> _exec_sqlcmd(
@@ -69,15 +69,39 @@ void utils::sql::write_header( const std::string& __s_name , int __i_create_time
         );
     } // if header already contains datas, erase them (count header before write it!!!)
     std::ostringstream oss;
-    oss << "INSERT INTO HEADER VALUES ('" << __s_name << "',"
-                                          << __i_create_time << ",'"
-                                          << __s_description << "','"
-                                          << __s_owners << "',"
-                                          << ( __b_enable_balance ? "1" : "0" ) << ");";
+    oss << "INSERT INTO HEADER VALUES ('" << __shd_data.name << "',"
+                                          << __shd_data.create_time << ",'"
+                                          << __shd_data.description << "','"
+                                          << __shd_data.owners << "',"
+                                          << ( __shd_data.enable_balance ? "1" : "0" ) << ");";
     this -> _exec_sqlcmd(
         oss.str() ,
         ERR_SQL_INSERT_HEADER_TABLE_FAILED
     );
+    return;
+}
+
+/**
+ * Write database data datas to the end of the table.
+ */
+void utils::sql::write_data( const utils::data_dat_t& __sdd_data ){
+    unsigned int id = this -> _get_table_len( DATA );
+    // index of this data
+    std::ostringstream oss;
+    oss << "INSERT INTO DATA VALUES (" << id << ","
+                                       << __sdd_data.data_record_time.time_stamp << ","
+                                       << __sdd_data.data_record_time.time_zone << ","
+                                       << __sdd_data.main_data_body.payment << ","
+                                       << __sdd_data.main_data_body.currency_type << ",'"
+                                       << __sdd_data.main_data_body.description << "',"
+                                       << __sdd_data.pre_calculated_datas.currency_exchange << ","
+                                       << __sdd_data.pre_calculated_datas.total_payment_after_exchange << ","
+                                       << __sdd_data.pre_calculated_datas.balance << ");";
+    this -> _exec_sqlcmd(
+        oss.str() ,
+        ERR_SQL_INSERT_DATA_TABLE_FAILED
+    );
+    return;
 }
 
 /**
