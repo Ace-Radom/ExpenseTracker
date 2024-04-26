@@ -31,10 +31,10 @@ namespace utils = rena::et::core::utils;
 utils::sql::sql( fs::path __p_dbpath ){
     this -> _p_dbpath = __p_dbpath;
     bool is_new = !fs::exists( this -> _p_dbpath );
-    int rc = sqlite3_open( this -> _p_dbpath.string().c_str() , &( this -> _sql_dbobj ) );
+    int rc = sqlite3_open( this -> _p_dbpath.string().c_str() , &( this -> _p_sql3_dbobj ) );
     if ( rc != SQLITE_OK )
     {
-        throw sql_exception( ERR_SQL_NOT_OPEN , sqlite3_errmsg( this -> _sql_dbobj ) );
+        throw sql_exception( ERR_SQL_NOT_OPEN , sqlite3_errmsg( this -> _p_sql3_dbobj ) );
     }
     if ( is_new )
     {
@@ -52,7 +52,7 @@ utils::sql::sql( fs::path __p_dbpath ){
 }
 
 utils::sql::~sql(){
-    sqlite3_close( this -> _sql_dbobj );
+    sqlite3_close( this -> _p_sql3_dbobj );
     return;
 }
 
@@ -312,7 +312,7 @@ unsigned int utils::sql::_get_table_len( utils::sql::_tablename_t __e_table ){
  */
 void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , int __i_errno ){
     char* errmsg = { 0 };
-    int rc = sqlite3_exec( this -> _sql_dbobj , __s_cmd.c_str() , nullptr , nullptr , &errmsg );
+    int rc = sqlite3_exec( this -> _p_sql3_dbobj , __s_cmd.c_str() , nullptr , nullptr , &errmsg );
     if ( rc != SQLITE_OK )
     {
         std::ostringstream oss;
@@ -328,7 +328,7 @@ void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , int __i_errno ){
  */
 void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , sql_callback __f_sqlcb , void* __p_v_data , int __i_errno ){
     char* errmsg = { 0 };
-    int rc = sqlite3_exec( this -> _sql_dbobj , __s_cmd.c_str() , __f_sqlcb , __p_v_data , &errmsg );
+    int rc = sqlite3_exec( this -> _p_sql3_dbobj , __s_cmd.c_str() , __f_sqlcb , __p_v_data , &errmsg );
     if ( rc != SQLITE_OK )
     {
         std::ostringstream oss;

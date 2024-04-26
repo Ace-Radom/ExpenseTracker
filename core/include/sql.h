@@ -57,7 +57,7 @@ namespace rena::et::core::utils {
 
         private:
             std::filesystem::path _p_dbpath;
-            sqlite3* _sql_dbobj;
+            sqlite3* _p_sql3_dbobj;
 
     }; // class sql
 
