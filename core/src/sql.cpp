@@ -120,7 +120,7 @@ const utils::header_dat_t* utils::sql::get_header(){
     );
     return data;
 }
-#include<iostream>
+
 /**
  * Get database data table datas.
  * If __i_id == -1, all datas in the table will be returned. Otherwise it will only get the data by index. If it doesn't exist, null will be returned.
@@ -130,7 +130,6 @@ const std::vector<utils::data_dat_t>* utils::sql::get_data( int __i_id ){
     unsigned int len = this -> _get_table_len( DATA );
     if ( __i_id >= len && __i_id != -1 )
     {
-        std::cout << " 1 " << std::endl;
         return nullptr;
     }
 
