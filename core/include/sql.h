@@ -38,6 +38,8 @@ namespace rena::et::core::utils {
             void write_data( const data_dat_t& __sdd_data );
             const header_dat_t* get_header();
             const std::vector<data_dat_t>* get_data( int __i_id );
+            unsigned int get_header_len();
+            unsigned int get_data_len();
 
         protected:
             typedef enum {

@@ -157,6 +157,14 @@ const std::vector<utils::data_dat_t>* utils::sql::get_data( int __i_id ){
     return data;
 }
 
+unsigned int utils::sql::get_header_len(){
+    return this -> _get_table_len( HEADER );
+}
+
+unsigned int utils::sql::get_data_len(){
+    return this -> _get_table_len( DATA );
+}
+
 /**
  * Create tables in database.
  */
@@ -279,18 +287,19 @@ bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
 }
 
 unsigned int utils::sql::_get_table_len( utils::sql::_tablename_t __e_table ){
-    std::string sqlcmd = R"(SELECT COUNT(*) FROM )";
+    std::ostringstream oss;
+    oss << "SELECT COUNT(*) FROM ";
     switch ( __e_table )
     {
-        case HEADER: sqlcmd.append( "HEADER;" ); break;
-        case DATA:   sqlcmd.append( "DATA;" );   break;
+        case HEADER: oss << "HEADER;"; break;
+        case DATA:   oss << "DATA;";   break;
         default: 
             throw sql_exception( ERR_SQL_UNEXPECTED , "database table name enum error" );
             break;
     }
     int len;
     this -> _exec_sqlcmd(
-        sqlcmd ,
+        oss.str() ,
         &callbacks::sqlcb_get_table_length ,
         ( void* ) &len ,
         ERR_SQL_GET_TABLE_LENGTH_FAILED
