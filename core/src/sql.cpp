@@ -57,7 +57,7 @@ utils::sql::~sql(){
 }
 
 /**
- * Write database header datas.
+ * Write database header table datas.
  * Count header length before calling this function to make sure that datas won't be overwritten accidentally!!!
  */
 void utils::sql::write_header( const utils::header_dat_t& __shd_data ){
@@ -82,7 +82,7 @@ void utils::sql::write_header( const utils::header_dat_t& __shd_data ){
 }
 
 /**
- * Write database data datas to the end of the table.
+ * Write database data table datas to the end of the table.
  */
 void utils::sql::write_data( const utils::data_dat_t& __sdd_data ){
     unsigned int id = this -> _get_table_len( DATA );
@@ -105,7 +105,8 @@ void utils::sql::write_data( const utils::data_dat_t& __sdd_data ){
 }
 
 /**
- * Get database header data. Remember to delete the data you get!!!
+ * Get database header table data.
+ * Remember to delete the data you get!!!
  */
 const utils::header_dat_t* utils::sql::get_header(){
     assert( this -> _get_table_len( HEADER ) == 1 );
@@ -117,6 +118,43 @@ const utils::header_dat_t* utils::sql::get_header(){
         ( void* ) data ,
         ERR_SQL_GET_HEADER_DATA_FAILED
     );
+    return data;
+}
+#include<iostream>
+/**
+ * Get database data table datas.
+ * If __i_id == -1, all datas in the table will be returned. Otherwise it will only get the data by index. If it doesn't exist, null will be returned.
+ * Remember to delete the data you get!!!
+ */
+const std::vector<utils::data_dat_t>* utils::sql::get_data( int __i_id ){
+    unsigned int len = this -> _get_table_len( DATA );
+    if ( __i_id >= len && __i_id != -1 )
+    {
+        std::cout << " 1 " << std::endl;
+        return nullptr;
+    }
+
+    std::vector<data_dat_t>* data = new std::vector<data_dat_t>;
+    if ( __i_id == -1 )
+    {
+        this -> _exec_sqlcmd(
+            R"(SELECT * FROM DATA ORDER BY ID ASC;)" ,
+            &callbacks::sqlcb_get_data_data ,
+            ( void* ) data ,
+            ERR_SQL_GET_DATA_DATA_FAILED
+        );
+    }
+    else
+    {
+        std::ostringstream oss;
+        oss << "SELECT * FROM DATA WHERE ID=" << __i_id << ";";
+        this -> _exec_sqlcmd(
+            oss.str() ,
+            &callbacks::sqlcb_get_data_data ,
+            ( void* ) data ,
+            ERR_SQL_GET_DATA_DATA_FAILED
+        );
+    }
     return data;
 }
 

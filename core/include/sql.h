@@ -2,7 +2,7 @@
 #define _EXPENSETRACKER_CORE_SQL_H_
 
 #include<filesystem>
-#include<functional>
+#include<vector>
 
 #include"sqlite3.h"
 
@@ -19,6 +19,7 @@
 #define ERR_SQL_INSERT_HEADER_TABLE_FAILED              8
 #define ERR_SQL_INSERT_DATA_TABLE_FAILED                9
 #define ERR_SQL_GET_HEADER_DATA_FAILED                 10
+#define ERR_SQL_GET_DATA_DATA_FAILED                   11
 #define ERR_SQL_UNEXPECTED                            255
 
 namespace rena::et::core::utils {
@@ -36,6 +37,7 @@ namespace rena::et::core::utils {
             void write_header( const header_dat_t& __shd_data );
             void write_data( const data_dat_t& __sdd_data );
             const header_dat_t* get_header();
+            const std::vector<data_dat_t>* get_data( int __i_id );
 
         protected:
             typedef enum {

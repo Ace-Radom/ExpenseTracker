@@ -4,6 +4,7 @@
 #include<iostream>
 #include<string>
 #include<string.h>
+#include<vector>
 
 namespace cbs = rena::et::core::utils::callbacks;
 
@@ -128,5 +129,30 @@ int cbs::sqlcb_get_header_data( void* __p_v_data , int __i_argc , char** __pp_c_
     data -> description = __pp_c_argv[2];
     data -> owners = __pp_c_argv[3];
     data -> enable_balance = strcmp( __pp_c_argv[4] , "1" ) == 0 ? true : false;
+    return 0;
+}
+
+int cbs::sqlcb_get_data_data( void* __p_v_data , int __i_argc , char** __pp_c_argv , char** __pp_c_azcolname ){
+    std::vector<data_dat_t>* data = ( std::vector<data_dat_t>* ) __p_v_data;
+    if ( __i_argc != 9 )
+    {
+        return 1;
+    }
+    data -> push_back( {
+        {
+            std::stoul( __pp_c_argv[1] ) ,
+            static_cast<unsigned short>( std::stoul( __pp_c_argv[2] ) )
+        } ,
+        {
+            std::stod( __pp_c_argv[3] ) ,
+            static_cast<unsigned short>( std::stoul( __pp_c_argv[4] ) ) ,
+            __pp_c_argv[5]
+        } ,
+        {
+            std::stod( __pp_c_argv[6] ) ,
+            std::stod( __pp_c_argv[7] ) ,
+            std::stod( __pp_c_argv[8] )
+        }
+    } );
     return 0;
 }
