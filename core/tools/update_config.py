@@ -7,7 +7,7 @@ def update_config_declaration( item: str , data_type: str ) -> str:
     return f"            static { data_type } { item.upper() };\n"
 
 def update_config_default_settings( item: str , default_value: str ) -> str:
-    return f"        this -> { item.upper() } = { default_value };\n"
+    return f"    this -> { item.upper() } = { default_value };\n"
 
 def update_config_definition( item: str , data_type: str ) -> str:
     return f"{ data_type } core::config::{ item.upper() };\n"

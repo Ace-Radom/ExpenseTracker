@@ -29,6 +29,8 @@ namespace rena::et::core {
             config();
             ~config(){};
 
+            void reset_to_default_cfg();
+
             static unsigned short BCFG_VERSION_MAJOR;
             static unsigned short BCFG_VERSION_MINOR;
             static unsigned short BCFG_VERSION_PATCH;

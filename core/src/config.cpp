@@ -36,9 +36,7 @@ core::config::config(){
     cfg_path /= "config.ini";
     if ( !fs::exists( cfg_path ) )
     {
-        this -> DEFAULT_ENABLE_BALANCE = false;
-        this -> ENABLE_LOG = true;
-        this -> MIN_LOG_SEVERITY = 1;
+        this -> reset_to_default_cfg();
         if ( !( this -> _write_default_cfg( cfg_path ) ) )
         {
             throw config_exception( ERR_CONFIG_CFGFILE_CREATE_FAILED , "failed to create config" );
@@ -48,6 +46,13 @@ core::config::config(){
     {
         this -> _read_cfg( cfg_path );
     }
+}
+
+void core::config::reset_to_default_cfg(){
+    this -> DEFAULT_ENABLE_BALANCE = false;
+    this -> ENABLE_LOG = true;
+    this -> MIN_LOG_SEVERITY = 1;
+    return;
 }
 
 unsigned short core::config::BCFG_VERSION_MAJOR;

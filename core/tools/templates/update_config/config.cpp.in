@@ -36,7 +36,7 @@ core::config::config(){
     cfg_path /= "config.ini";
     if ( !fs::exists( cfg_path ) )
     {
-@INSERT_CONFIG_DEFAULT_SETTINGS@
+        this -> reset_to_default_cfg();
         if ( !( this -> _write_default_cfg( cfg_path ) ) )
         {
             throw config_exception( ERR_CONFIG_CFGFILE_CREATE_FAILED , "failed to create config" );
@@ -46,6 +46,11 @@ core::config::config(){
     {
         this -> _read_cfg( cfg_path );
     }
+}
+
+void core::config::reset_to_default_cfg(){
+@INSERT_CONFIG_DEFAULT_SETTINGS@
+    return;
 }
 
 unsigned short core::config::BCFG_VERSION_MAJOR;
