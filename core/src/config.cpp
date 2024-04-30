@@ -2,8 +2,6 @@
 #include"build_cfgs.h"
 #include"mini.h"
 
-#include<iostream>
-
 #include<shlobj.h>
 #include<windows.h>
 
