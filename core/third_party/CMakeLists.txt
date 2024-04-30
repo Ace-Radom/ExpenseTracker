@@ -1,2 +1,8 @@
+set(ADD_FATAL_EXAMPLE OFF)
+set(ADD_G3LOG_UNIT_TEST OFF)
+set(G3LOG_INCLUDE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/g3log/src" CACHE INTERNAL "${CMAKE_CURRENT_SOURCE_DIR}/g3log/src")
+set(G3LOG_INCLUDE_BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/g3log/include" CACHE INTERNAL "${CMAKE_CURRENT_BINARY_DIR}/g3log/include")
+message(${G3LOG_INCLUDE_BIN_DIR})
+add_subdirectory(g3log)
 add_subdirectory(mini)
 add_subdirectory(sqlite3)
