@@ -45,6 +45,7 @@ namespace rena::et::core {
             static bool DEFAULT_ENABLE_BALANCE;
             static bool ENABLE_LOG;
             static int MIN_LOG_SEVERITY;
+            static int REFRESH_FREQUENCY;
 
         protected:
             void _read_cfg( std::filesystem::path& __p_path );

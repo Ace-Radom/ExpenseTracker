@@ -52,6 +52,7 @@ void core::config::reset_to_default_cfg(){
     this -> DEFAULT_ENABLE_BALANCE = false;
     this -> ENABLE_LOG = true;
     this -> MIN_LOG_SEVERITY = 1;
+    this -> REFRESH_FREQUENCY = 20;
     return;
 }
 
@@ -69,6 +70,7 @@ const char* core::config::BCFG_BUILD_TIME;
 bool core::config::DEFAULT_ENABLE_BALANCE;
 bool core::config::ENABLE_LOG;
 int core::config::MIN_LOG_SEVERITY;
+int core::config::REFRESH_FREQUENCY;
 
 void core::config::_read_cfg( fs::path& __p_path ){
     mINI::INIFile inif( __p_path );
@@ -106,6 +108,17 @@ void core::config::_read_cfg( fs::path& __p_path ){
     {
         this -> MIN_LOG_SEVERITY = 1;
     }
+    if ( !ini["g3log"].has( "refresh_frequency" ) )
+    {
+        throw config_exception( ERR_CONFIG_CFGFILE_FORMAT_ERROR , "config file section \"g3log\" doesn't have node \"refresh_frequency\"" );
+    }
+    try {
+        this -> REFRESH_FREQUENCY = std::stoi( ini["g3log"]["refresh_frequency"] );
+    }
+    catch ( ... )
+    {
+        this -> REFRESH_FREQUENCY = 20;
+    }
     return;
 }
 
@@ -115,6 +128,7 @@ bool core::config::_write_default_cfg( fs::path& __p_path ){
     ini["expensetracker"]["default_enable_balance"] = "0";
     ini["expensetracker"]["enable_log"] = "1";
     ini["g3log"]["min_log_severity"] = "1";
+    ini["g3log"]["refresh_frequency"] = "20";
     return inif.generate( ini );
 }
 
