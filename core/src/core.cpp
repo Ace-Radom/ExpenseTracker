@@ -1,7 +1,11 @@
 #include"core.h"
+#include"config.h"
+#include"g3log_sink.h"
+#include"log.h"
 
 #include<algorithm>
 #include<cctype>
+#include<sstream>
 #include<shlobj.h>
 #include<sstream>
 #include<windows.h>
@@ -9,10 +13,44 @@
 namespace core = rena::et::core;
 namespace fs = std::filesystem;
 
+core::core::core(){
+    config* cfg = nullptr;
+    std::string cfgerr;
+    try {
+        cfg = new config();
+    }
+    catch ( std::exception& e )
+    {
+        cfgerr = e.what();
+        cfg -> reset_to_default_cfg();
+    }
+    delete cfg;
+    // init config
+
+    if ( config::ENABLE_LOG )
+    {
+        this -> _p_glw_worker = g3::LogWorker::createLogWorker();
+        this -> _p_glw_worker -> addSink( std::make_unique<utils::log_sink>( config::REFRESH_FREQUENCY , config::MIN_LOG_SEVERITY ) , &utils::log_sink::write_log );
+        g3::initializeLogging( this -> _p_glw_worker.get() );
+        if ( !cfgerr.empty() )
+        {
+            LOG( WARNING ) << "config reset to default due to error: " << cfgerr;
+        }
+        LOG( INFO ) << "core inited successfully";
+    }
+    
+    return;
+}
+
 core::core::~core(){
     if ( this -> _p_sql_db )
     {
         this -> close();
+    }
+    LOG_E( INFO ) << "core shutting down";
+    if ( config::ENABLE_LOG )
+    {
+        g3::internal::shutDownLogging();
     }
     return;
 }

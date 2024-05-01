@@ -3,21 +3,27 @@
 
 #include<filesystem>
 #include<string>
+#include<memory>
 
 #include"exception.h"
+#include"g3log/g3log.hpp"
+#include"g3log/logworker.hpp"
 #include"sql.h"
 
 #define ERR_CORE_ILLEGAL_DB_NAME                        1
 #define ERR_CORE_DB_NOT_FOUND                           2
 #define ERR_CORE_CREATE_EXISTING_DB                     3
 #define ERR_CORE_DB_REOPEN                              4
+#define ERR_CORE_CONFIG_ERROR                         128
+#define ERR_CORE_SQL_ERROR                            256
+#define ERR_CORE_UNKNOWN                              512
 
 namespace rena::et::core {
 
     class core {
 
         public:
-            core(){};
+            core();
             ~core();
 
             void open( const std::string& __s_name );
@@ -31,6 +37,7 @@ namespace rena::et::core {
 
         private:
             utils::sql* _p_sql_db = nullptr;
+            std::unique_ptr<g3::LogWorker> _p_glw_worker = nullptr;
 
             bool _b_enable_balance;
 
