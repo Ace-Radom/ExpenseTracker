@@ -1,5 +1,6 @@
 #include"sql.h"
 #include"sql_callbacks.h"
+#include"log.h"
 
 #include<assert.h>
 #include<sstream>
@@ -34,10 +35,13 @@ utils::sql::sql( fs::path __p_dbpath ){
     int rc = sqlite3_open( this -> _p_dbpath.string().c_str() , &( this -> _p_sql3_dbobj ) );
     if ( rc != SQLITE_OK )
     {
+        LOG_E( WARNING ) << "open sql database failed: path: " << this -> _p_dbpath << " errmsg: \"" << sqlite3_errmsg( this -> _p_sql3_dbobj ) << "\"";
         throw sql_exception( ERR_SQL_NOT_OPEN , sqlite3_errmsg( this -> _p_sql3_dbobj ) );
     }
+    LOG_E( INFO ) << "sql database opened: path: " << this -> _p_dbpath;
     if ( is_new )
     {
+        LOG_E( INFO ) << "new sql database, create tables";
         this -> _create_tables();
     }
     else
@@ -45,14 +49,17 @@ utils::sql::sql( fs::path __p_dbpath ){
         std::string errmsg;
         if ( !( this -> _check_db_legality( &errmsg ) ) )
         {
+            LOG_E( WARNING ) << "illegal sql database: " << " errmsg: \"" << errmsg << "\"";
             throw sql_exception( ERR_SQL_ILLEGAL_DB , errmsg );
         }
     }
+    LOG_E( INFO ) << "sql database opened and verified";
     return;
 }
 
 utils::sql::~sql(){
     sqlite3_close( this -> _p_sql3_dbobj );
+    LOG_E( INFO ) << "sql database closed";
     return;
 }
 
@@ -63,6 +70,7 @@ utils::sql::~sql(){
 void utils::sql::write_header( const utils::header_dat_t& __shd_data ){
     if ( this -> _get_table_len( HEADER ) > 0 )
     {
+        LOG_E( INFO ) << "header is not empty, erase old header datas";
         this -> _exec_sqlcmd(
             R"(DELETE FROM HEADER;)" ,
             ERR_SQL_CLEAN_UP_TABLE_FAILED
@@ -74,6 +82,7 @@ void utils::sql::write_header( const utils::header_dat_t& __shd_data ){
                                           << __shd_data.description << "','"
                                           << __shd_data.owners << "',"
                                           << ( __shd_data.enable_balance ? "1" : "0" ) << ");";
+    LOG_E( INFO ) << "writing header";
     this -> _exec_sqlcmd(
         oss.str() ,
         ERR_SQL_INSERT_HEADER_TABLE_FAILED
@@ -97,6 +106,7 @@ void utils::sql::write_data( const utils::data_dat_t& __sdd_data ){
                                        << __sdd_data.pre_calculated_datas.currency_exchange << ","
                                        << __sdd_data.pre_calculated_datas.total_payment_after_exchange << ","
                                        << __sdd_data.pre_calculated_datas.balance << ");";
+    LOG_E( INFO ) << "writing data";
     this -> _exec_sqlcmd(
         oss.str() ,
         ERR_SQL_INSERT_DATA_TABLE_FAILED
@@ -111,6 +121,7 @@ void utils::sql::write_data( const utils::data_dat_t& __sdd_data ){
 const utils::header_dat_t* utils::sql::get_header(){
     assert( this -> _get_table_len( HEADER ) == 1 );
 
+    LOG_E( INFO ) << "getting header";
     header_dat_t* data = new header_dat_t;
     this -> _exec_sqlcmd(
         R"(SELECT * FROM HEADER;)" ,
@@ -130,9 +141,11 @@ const std::vector<utils::data_dat_t>* utils::sql::get_data( int __i_id ){
     unsigned int len = this -> _get_table_len( DATA );
     if ( __i_id >= len && __i_id != -1 )
     {
+        LOG_E( WARNING ) << "data id out of range: id: " << __i_id;
         return nullptr;
     }
 
+    LOG_E( INFO ) << "getting data: id: " << __i_id;
     std::vector<data_dat_t>* data = new std::vector<data_dat_t>;
     if ( __i_id == -1 )
     {
@@ -169,6 +182,7 @@ unsigned int utils::sql::get_data_len(){
  * Create tables in database.
  */
 void utils::sql::_create_tables(){
+    LOG_E( INFO ) << "creating header table";
     this -> _exec_sqlcmd( 
         R"(
 CREATE TABLE HEADER(
@@ -181,6 +195,7 @@ CREATE TABLE HEADER(
 )" ,
         ERR_SQL_CREATE_HEADER_TABLE_FAILED
     );
+    LOG_E( INFO ) << "creating data table";
     this -> _exec_sqlcmd( 
         R"(
 CREATE TABLE DATA(
@@ -206,6 +221,9 @@ CREATE TABLE DATA(
 bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
     assert( __out_p_s_errmsg );
 
+    LOG_E( INFO ) << "start sql database legality check";
+
+    LOG_E( INFO ) << "checking table list";
     callbacks::table_checklist_t table_checklist = { 0 , 0 , 0 };
     this -> _exec_sqlcmd( 
         R"(SELECT name FROM sqlite_master WHERE type='table';)" ,
@@ -222,9 +240,11 @@ bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
             << ", .data=" << table_checklist.data
             << ", .unknown=" << table_checklist.unknown << "]";
         *__out_p_s_errmsg = oss.str();
+        LOG_E( WARNING ) << "check table list failed: errmsg: \"" << oss.str() << std::endl; 
         return false;
     } // illegal table list
 
+    LOG_E( INFO ) << "checking header table col list";
     callbacks::header_table_col_checklist_t header_table_col_checklist = { 0 , 0 , 0 , 0 , 0 , 0 };
     this -> _exec_sqlcmd(
         R"(PRAGMA TABLE_INFO(HEADER);)" ,
@@ -247,9 +267,11 @@ bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
             << ", .enable_balance=" << header_table_col_checklist.enable_balance
             << ", .unknown=" << header_table_col_checklist.unknown << "]";
         *__out_p_s_errmsg = oss.str();
+        LOG_E( WARNING ) << "check header table col list failed: errmsg: \"" << oss.str() << "\""; 
         return false;
     } // illegal header table
 
+    LOG_E( INFO ) << "checking data table col list";
     callbacks::data_table_col_checklist_t data_table_col_checklist = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
     this -> _exec_sqlcmd(
         R"(PRAGMA TABLE_INFO(DATA);)" ,
@@ -280,13 +302,17 @@ bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
             << ", .balance=" << data_table_col_checklist.balance
             << ", .unknown=" << data_table_col_checklist.unknown << "]";
         *__out_p_s_errmsg = oss.str();
+        LOG_E( WARNING ) << "check data table col list failed: errmsg: \"" << oss.str() << "\"";
         return false;
     } // illegal data table
+
+    LOG_E( INFO ) << "sql database verified";
 
     return true;
 }
 
 unsigned int utils::sql::_get_table_len( utils::sql::_tablename_t __e_table ){
+    LOG_E( INFO ) << "getting table length: table: " << static_cast<int>( __e_table );
     std::ostringstream oss;
     oss << "SELECT COUNT(*) FROM ";
     switch ( __e_table )
@@ -311,6 +337,7 @@ unsigned int utils::sql::_get_table_len( utils::sql::_tablename_t __e_table ){
  * Execute sql command without callback function.
  */
 void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , int __i_errno ){
+    LOG_E( INFO ) << "executing sql command: cmd: \"" << __s_cmd;
     char* errmsg = { 0 };
     int rc = sqlite3_exec( this -> _p_sql3_dbobj , __s_cmd.c_str() , nullptr , nullptr , &errmsg );
     if ( rc != SQLITE_OK )
@@ -318,6 +345,7 @@ void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , int __i_errno ){
         std::ostringstream oss;
         oss << errmsg << " [rc=" << rc << "]";
         sqlite3_free( errmsg );
+        LOG_E( WARNING ) << "sql command execute failed: errmsg: \"" << oss.str() << "\"";
         throw sql_exception( __i_errno , oss.str() );
     }
     return;
@@ -327,6 +355,7 @@ void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , int __i_errno ){
  * Execute sql command with callback function
  */
 void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , sql_callback __f_sqlcb , void* __p_v_data , int __i_errno ){
+    LOG_E( INFO ) << "executing sql command: cmd: \"" << __s_cmd;
     char* errmsg = { 0 };
     int rc = sqlite3_exec( this -> _p_sql3_dbobj , __s_cmd.c_str() , __f_sqlcb , __p_v_data , &errmsg );
     if ( rc != SQLITE_OK )
@@ -334,6 +363,7 @@ void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , sql_callback __f_sql
         std::ostringstream oss;
         oss << errmsg << " [rc=" << rc << "]";
         sqlite3_free( errmsg );
+        LOG_E( WARNING ) << "sql command execute failed: errmsg: \"" << oss.str() << "\"";
         throw sql_exception( __i_errno , oss.str() );
     }
     return;

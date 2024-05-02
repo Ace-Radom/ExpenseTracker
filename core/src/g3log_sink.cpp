@@ -4,6 +4,7 @@
 
 #include<cassert>
 #include<chrono>
+#include<iomanip>
 #include<shlobj.h>
 #include<sstream>
 #include<windows.h>
@@ -58,7 +59,7 @@ void utils::log_sink::write_log( g3::LogMessageMover __lmm_msg ){
     if ( this -> _ull_write_counter % this -> _ull_refresh_after_x_msgs == 0 )
     {
         this -> _filestream() << this -> _oss_write_buf.str() << std::flush;
-        this -> _oss_write_buf.clear();
+        this -> _oss_write_buf.str( "" );
     }
     return;
 }
@@ -74,7 +75,10 @@ fs::path utils::log_sink::_get_log_folder(){
 
 std::string utils::log_sink::_log_details_to_string( const g3::LogMessage& __lm_msg ){
     std::ostringstream oss;
-    oss << "[" << __lm_msg.timestamp( LOG_TIMEFORMAT ) << "] " << __lm_msg.level() << "\t\t(" << __lm_msg.threadID() << ": " << __lm_msg.file() << " -> " << __lm_msg.function() << ":" << __lm_msg.line() << ")\t\t\t\t";
+    oss << "(" << __lm_msg.threadID() << ": " << __lm_msg.file() << " -> " << __lm_msg.function() << ":" << __lm_msg.line() << ")";
+    std::string pos_detail = oss.str();
+    oss.str( "" );
+    oss << "[" << __lm_msg.timestamp( LOG_TIMEFORMAT ) << "] " << __lm_msg.level() << ( __lm_msg._level.value == g3::kWarningValue ? "\t" : "\t\t" ) << std::left << std::setw( 64 ) << pos_detail;
     return oss.str();
 }
 

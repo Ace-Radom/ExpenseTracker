@@ -36,9 +36,9 @@ core::core::core(){
         {
             LOG( WARNING ) << "config reset to default due to error: " << cfgerr;
         }
-        LOG( INFO ) << "core inited successfully";
     }
-    
+
+    LOG_E( INFO ) << "core inited successfully";
     return;
 }
 
@@ -68,6 +68,7 @@ void core::core::close(){
     {
         delete this -> _p_sql_db;
         this -> _p_sql_db = nullptr;
+        LOG_E( INFO ) << "sql closed";
     }
     return;
 }
@@ -75,13 +76,15 @@ void core::core::close(){
 void core::core::_open_db( const std::string& __s_name , bool __b_create ){
     if ( this -> _p_sql_db )
     {
+        LOG_E( WARNING ) << "one database has already been opened";
         throw core_exception( ERR_CORE_DB_REOPEN , "one database has already been opened" );
     } // reopen
 
     if ( !( this -> _check_db_name_legality( __s_name ) ) )
     {
         std::ostringstream oss;
-        oss << "illegal database name [name=\"" << __s_name << "\"]"; 
+        oss << "illegal database name [name=\"" << __s_name << "\"]";
+        LOG_E( WARNING ) << oss.str();
         throw core_exception( ERR_CORE_ILLEGAL_DB_NAME , oss.str() );
     } // illegal db name
 
@@ -90,8 +93,10 @@ void core::core::_open_db( const std::string& __s_name , bool __b_create ){
     {
         std::ostringstream oss;
         oss << "database " << ( __b_create ? "exists" : "not found" ) << " [path=\"" << db_path.string() << "\"]";
+        LOG_E( WARNING ) << oss.str();
         throw core_exception( __b_create ? ERR_CORE_CREATE_EXISTING_DB : ERR_CORE_DB_NOT_FOUND , oss.str() );
     }
+    LOG_E( INFO ) << "opening database: path: " << db_path;
     this -> _p_sql_db = new utils::sql( db_path );
     return;
 }
