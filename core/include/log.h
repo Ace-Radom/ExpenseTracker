@@ -11,6 +11,6 @@
     if ( !rena::et::core::config::ENABLE_LOG ) {} else LOG_IF( level , boolean_expression )
 
 #define CHECK_E( boolean_expression )   \
-    if ( !rena::et::core::config::ENABLE_LOG) {} else CHECK( boolean_expression )
+    if ( !rena::et::core::config::ENABLE_LOG ) {} else CHECK( boolean_expression )
 
 #endif // _EXPENSETRACKER_CORE_LOG_H_
