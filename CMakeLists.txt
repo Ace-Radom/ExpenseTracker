@@ -15,6 +15,12 @@ add_definitions(-D_UNICODE)
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 
+find_package(OpenSSL REQUIRED)
+if(NOT OPENSSL_FOUND)
+    message(FATAL "Cannot find OpenSSL, please check environment")
+endif()
+include(cmake/copy_openssl_dlib.cmake)
+
 find_package(Git REQUIRED)
 execute_process(
     COMMAND ${GIT_EXECUTABLE} log -1 --pretty=format:%h
@@ -39,3 +45,4 @@ configure_file(
 # parse build cfgs
 
 add_subdirectory(core)
+add_subdirectory(cli)
