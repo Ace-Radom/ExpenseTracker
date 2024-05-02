@@ -26,6 +26,8 @@ namespace utils = rena::et::core::utils;
  *   └───────────────────┴────────────┴───────────┴─────────┴───────────────┴─────────────┴───────────────────┴──────────────────────────────┴──────────────────────┘
  */
 
+#define BUILD_CALLBACK_DATA( cb_func ) { &cb_func , #cb_func }
+
 /**
  * Open a database and check its legality. If it doesn't exist, create it.
  */
@@ -125,7 +127,7 @@ const utils::header_dat_t* utils::sql::get_header(){
     header_dat_t* data = new header_dat_t;
     this -> _exec_sqlcmd(
         R"(SELECT * FROM HEADER;)" ,
-        &callbacks::sqlcb_get_header_data ,
+        BUILD_CALLBACK_DATA( callbacks::sqlcb_get_header_data ) ,
         ( void* ) data ,
         ERR_SQL_GET_HEADER_DATA_FAILED
     );
@@ -151,7 +153,7 @@ const std::vector<utils::data_dat_t>* utils::sql::get_data( int __i_id ){
     {
         this -> _exec_sqlcmd(
             R"(SELECT * FROM DATA ORDER BY ID ASC;)" ,
-            &callbacks::sqlcb_get_data_data ,
+            BUILD_CALLBACK_DATA( callbacks::sqlcb_get_data_data ) ,
             ( void* ) data ,
             ERR_SQL_GET_DATA_DATA_FAILED
         );
@@ -162,7 +164,7 @@ const std::vector<utils::data_dat_t>* utils::sql::get_data( int __i_id ){
         oss << "SELECT * FROM DATA WHERE ID=" << __i_id << ";";
         this -> _exec_sqlcmd(
             oss.str() ,
-            &callbacks::sqlcb_get_data_data ,
+            BUILD_CALLBACK_DATA( callbacks::sqlcb_get_data_data ) ,
             ( void* ) data ,
             ERR_SQL_GET_DATA_DATA_FAILED
         );
@@ -227,7 +229,7 @@ bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
     callbacks::table_checklist_t table_checklist = { 0 , 0 , 0 };
     this -> _exec_sqlcmd( 
         R"(SELECT name FROM sqlite_master WHERE type='table';)" ,
-        &callbacks::sqlcb_check_table_list ,
+        BUILD_CALLBACK_DATA( callbacks::sqlcb_check_table_list ) ,
         ( void* ) &table_checklist ,
         ERR_SQL_CHECK_DB_CMD_EXEC_FAILED
     );
@@ -248,7 +250,7 @@ bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
     callbacks::header_table_col_checklist_t header_table_col_checklist = { 0 , 0 , 0 , 0 , 0 , 0 };
     this -> _exec_sqlcmd(
         R"(PRAGMA TABLE_INFO(HEADER);)" ,
-        &callbacks::sqlcb_check_header_table_col ,
+        BUILD_CALLBACK_DATA( callbacks::sqlcb_check_header_table_col ) ,
         ( void* ) &header_table_col_checklist ,
         ERR_SQL_CHECK_DB_CMD_EXEC_FAILED
     );
@@ -275,7 +277,7 @@ bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
     callbacks::data_table_col_checklist_t data_table_col_checklist = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
     this -> _exec_sqlcmd(
         R"(PRAGMA TABLE_INFO(DATA);)" ,
-        &callbacks::sqlcb_check_data_table_col ,
+        BUILD_CALLBACK_DATA( callbacks::sqlcb_check_data_table_col ) ,
         ( void* ) &data_table_col_checklist ,
         ERR_SQL_CHECK_DB_CMD_EXEC_FAILED
     );
@@ -326,7 +328,7 @@ unsigned int utils::sql::_get_table_len( utils::sql::_tablename_t __e_table ){
     int len;
     this -> _exec_sqlcmd(
         oss.str() ,
-        &callbacks::sqlcb_get_table_length ,
+        BUILD_CALLBACK_DATA( callbacks::sqlcb_get_table_length ) ,
         ( void* ) &len ,
         ERR_SQL_GET_TABLE_LENGTH_FAILED
     );
@@ -337,7 +339,7 @@ unsigned int utils::sql::_get_table_len( utils::sql::_tablename_t __e_table ){
  * Execute sql command without callback function.
  */
 void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , int __i_errno ){
-    LOG_E( INFO ) << "executing sql command: cmd: \"" << __s_cmd;
+    LOG_E( INFO ) << "executing sql command: cmd: \"" << __s_cmd << "\"";
     char* errmsg = { 0 };
     int rc = sqlite3_exec( this -> _p_sql3_dbobj , __s_cmd.c_str() , nullptr , nullptr , &errmsg );
     if ( rc != SQLITE_OK )
@@ -354,12 +356,13 @@ void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , int __i_errno ){
 /**
  * Execute sql command with callback function
  */
-void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , sql_callback __f_sqlcb , void* __p_v_data , int __i_errno ){
-    LOG_E( INFO ) << "executing sql command: cmd: \"" << __s_cmd;
+void utils::sql::_exec_sqlcmd( const std::string& __s_cmd , const callback_data_t& __scd_cb , void* __p_v_data , int __i_errno ){
+    LOG_E( INFO ) << "executing sql command: cmd: \"" << __s_cmd << "\" callback: \"" << __scd_cb.s_cb_name << "\"";
     char* errmsg = { 0 };
-    int rc = sqlite3_exec( this -> _p_sql3_dbobj , __s_cmd.c_str() , __f_sqlcb , __p_v_data , &errmsg );
+    int rc = sqlite3_exec( this -> _p_sql3_dbobj , __s_cmd.c_str() , __scd_cb.f_cb , __p_v_data , &errmsg );
     if ( rc != SQLITE_OK )
     {
+        
         std::ostringstream oss;
         oss << errmsg << " [rc=" << rc << "]";
         sqlite3_free( errmsg );

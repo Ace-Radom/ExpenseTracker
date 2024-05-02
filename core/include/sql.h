@@ -28,6 +28,11 @@ namespace rena::et::core::utils {
     
     typedef int ( *sql_callback )( void* , int , char** , char** );
 
+    typedef struct {
+        sql_callback f_cb;
+        std::string s_cb_name;
+    } callback_data_t;
+
     class sql {
 
         public:
@@ -53,7 +58,7 @@ namespace rena::et::core::utils {
             unsigned int _get_table_len( _tablename_t __e_table );
 
             void _exec_sqlcmd( const std::string& __s_cmd , int __i_errno );
-            void _exec_sqlcmd( const std::string& __s_cmd , sql_callback __f_sqlcb , void* __p_v_data , int __i_errno );
+            void _exec_sqlcmd( const std::string& __s_cmd , const callback_data_t& __scd_cb , void* __p_v_data , int __i_errno );
 
         private:
             std::filesystem::path _p_dbpath;
