@@ -44,5 +44,7 @@ configure_file(
 )
 # parse build cfgs
 
+include(cmake/download_buildin_curl.cmake)
+
 add_subdirectory(core)
 add_subdirectory(cli)
