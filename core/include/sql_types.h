@@ -6,6 +6,18 @@
 namespace rena::et::core::utils {
 
     typedef struct {
+        unsigned int format_version;
+        std::string et_version;
+        std::string et_commit;
+        std::string et_branch;
+        time_t first_create_time;
+    } format_dat_t;
+
+    typedef struct {
+        std::string calibration_code;
+    } calibration_dat_t;
+
+    typedef struct {
         std::string name;
         unsigned long create_time;
         std::string description;

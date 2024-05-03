@@ -1,20 +1,47 @@
 #include"sql.h"
+#include"build_cfgs.h"
 #include"sql_callbacks.h"
 #include"log.h"
 
-#include<assert.h>
+
+#include<openssl/sha.h>
+
+#include<cassert>
+#include<chrono>
 #include<sstream>
+#include<cstring>
 
 namespace fs = std::filesystem;
 namespace utils = rena::et::core::utils;
 
+#define DB_VERSION 1
+
 /**
+ * Current ExpenseTracker database version is: 1
+ *
+ * The format table of ExpenseTracker in each database should be kept in the following form:
+ *   ┌────────────────┬────────────────────────┬───────────────────────┬───────────────────────┬─────────────────────────┐
+ *   │ Format Version │ ExpenseTracker Version │ ExpenseTracker Commit │ ExpenseTracker Branch │ First Create Time (UTC) │
+ *   ├────────────────┼────────────────────────┼───────────────────────┼───────────────────────┼─────────────────────────┤
+ *   │      INT       │          TEXT          │         TEXT          │         TEXT          │           INT           │
+ *   └────────────────┴────────────────────────┴───────────────────────┴───────────────────────┴─────────────────────────┘
+ * After database creation, the format table SHOULDN'T BE CHANGED any more.
+ *
+ * The calibration table of ExpenseTracker in each databse should be kept in the following form:
+ *   ┌──────────────────┐
+ *   │ Calibration Code │
+ *   ├──────────────────┤
+ *   │       TEXT       │
+ *   └──────────────────┘
+ * This table contains a hash of the format table. 
+ * Same as the format table, the calibration table SHOULD'T BE CHANGED any more after database creation.
+ *
  * The header table of ExpenseTracker in each database should be kept in the following form:
- *   ┌──────────┬───────────────────┬─────────────┬──────────┬────────────────┐
- *   │   Name   │ Create Time (UTC) │ Description │  Owners  │ Enable Balance │
- *   ├──────────┼───────────────────┼─────────────┼──────────┼────────────────┤
- *   │   TEXT   │        INT        │    TEXT     │   TEXT   │      INT       │
- *   └──────────┴───────────────────┴─────────────┴──────────┴────────────────┘
+ *   ┌──────────┬───────────────────┬─────────────┬──────────┬──────────────────────┬────────────────┐
+ *   │   Name   │ Create Time (UTC) │ Description │  Owners  │ Target Currency Type │ Enable Balance │
+ *   ├──────────┼───────────────────┼─────────────┼──────────┼──────────────────────┼────────────────┤
+ *   │   TEXT   │        INT        │    TEXT     │   TEXT   │         INT          │      INT       │
+ *   └──────────┴───────────────────┴─────────────┴──────────┴──────────────────────┴────────────────┘
  *
  * The data table of ExpenseTracker should be kept in the following form:
  *   ┌───────────────────┬────────────────────────┬───────────────────────────────────────┬─────────────────────────────────────────────────────────────────────────┐
@@ -27,6 +54,23 @@ namespace utils = rena::et::core::utils;
  */
 
 #define BUILD_CALLBACK_DATA( cb_func ) { &cb_func , #cb_func }
+
+std::string _make_calibration_str( int __s_dbv , const std::string& __s_etv , const std::string& __s_commit , const std::string& __s_branch , time_t __t_utc_now ){
+    std::ostringstream oss;
+    oss << __s_dbv << __s_etv << __s_commit << __s_branch << __t_utc_now;
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    const char* buf = oss.str().c_str();
+    SHA256( reinterpret_cast<const unsigned char*>( buf ) , strlen( buf ) , hash );
+    std::string out;
+    for ( int i = 0 ; i < SHA256_DIGEST_LENGTH ; i++ )
+    {
+        char temp[3];
+        memset( temp , '\0' , sizeof( temp ) );
+        sprintf( temp , "%02x" , hash[i] );
+        out.append( temp );
+    }
+    return out;
+}
 
 /**
  * Open a database and check its legality. If it doesn't exist, create it.
@@ -184,8 +228,30 @@ unsigned int utils::sql::get_data_len(){
  * Create tables in database.
  */
 void utils::sql::_create_tables(){
+    LOG_E( INFO ) << "creating format table";
+    this -> _exec_sqlcmd(
+        R"(
+CREATE TABLE FORMAT(
+    FORMAT_VERSION          INT     NOT NULL,
+    EXPENSETRACKER_VERSION  TEXT    NOT NULL,
+    EXPENSETRACKER_COMMIT   TEXT    NOT NULL,
+    EXPENSETRACKER_BRANCH   TEXT    NOT NULL,
+    FIRST_CREATE_TIME       INT     NOT NULL
+);
+)" ,
+        ERR_SQL_CREATE_FORMAT_TABLE_FAILED
+    );
+    LOG_E( INFO ) << "creating calibration table";
+    this -> _exec_sqlcmd(
+        R"(
+CREATE TABLE CALIBRATION(
+    CALIBRATION_CODE    TEXT    NOT NULL
+);
+)" ,
+        ERR_SQL_CREATE_CALIBRATION_TABLE_FAILED
+    );
     LOG_E( INFO ) << "creating header table";
-    this -> _exec_sqlcmd( 
+    this -> _exec_sqlcmd(
         R"(
 CREATE TABLE HEADER(
     NAME            TEXT    NOT NULL,
@@ -198,7 +264,7 @@ CREATE TABLE HEADER(
         ERR_SQL_CREATE_HEADER_TABLE_FAILED
     );
     LOG_E( INFO ) << "creating data table";
-    this -> _exec_sqlcmd( 
+    this -> _exec_sqlcmd(
         R"(
 CREATE TABLE DATA(
     ID                              INT PRIMARY KEY     NOT NULL,
@@ -214,6 +280,52 @@ CREATE TABLE DATA(
 )" ,
         ERR_SQL_CREATE_DATA_TABLE_FAILED
     );
+    this -> _write_format_calibration();
+    return;
+}
+
+void utils::sql::_write_format_calibration(){
+    if ( this -> _get_table_len( FORMAT ) > 0 )
+    {
+        LOG_E( WARNING ) << "format table rewrite";
+        throw sql_exception( ERR_SQL_FORMAT_TABLE_REWRITE , "format table rewrite" );
+    } // format table rewrite
+    if ( this -> _get_table_len( CALIBRATION ) > 0 )
+    {
+        LOG_E( WARNING ) << "calibration table rewrite";
+        throw sql_exception( ERR_SQL_CALIBRATION_TABLE_REWRITE , "calibration table rewrite" );
+    } // calibration table rewrite
+
+    auto now = std::chrono::system_clock::now();
+    auto now_ts = std::chrono::system_clock::to_time_t( now );
+    time_t utc_now_ts = std::mktime( std::gmtime( &now_ts ) );
+
+    std::ostringstream oss;
+    oss << "INSERT INTO FORMAT VALUES (" << DB_VERSION << ",'"
+                                         << BUILD_CFG_VERSION << "','"
+                                         << BUILD_CFG_BUILD_GIT_COMMIT << "','"
+                                         << BUILD_CFG_BUILD_GIT_BRANCH << "',"
+                                         << utc_now_ts << ");";
+    LOG_E( INFO ) << "writing format";
+    this -> _exec_sqlcmd(
+        oss.str() ,
+        ERR_SQL_INSERT_FORMAT_TABLE_FAILED
+    );
+
+    oss.str( "" );
+    oss << "INSERT INTO CALIBRATION VALUES ('" << _make_calibration_str(
+        DB_VERSION ,
+        BUILD_CFG_VERSION ,
+        BUILD_CFG_BUILD_GIT_COMMIT ,
+        BUILD_CFG_BUILD_GIT_BRANCH ,
+        utc_now_ts
+    ) << "');";
+    LOG_E( INFO ) << "writing calibration";
+    this -> _exec_sqlcmd(
+        oss.str() ,
+        ERR_SQL_INSERT_CALIBRATION_TABLE_FAILED
+    );
+
     return;
 }
 
@@ -226,25 +338,131 @@ bool utils::sql::_check_db_legality( std::string* __out_p_s_errmsg ){
     LOG_E( INFO ) << "start sql database legality check";
 
     LOG_E( INFO ) << "checking table list";
-    callbacks::table_checklist_t table_checklist = { 0 , 0 , 0 };
+    callbacks::table_checklist_t table_checklist = { 0 , 0 , 0 , 0 , 0 };
     this -> _exec_sqlcmd( 
         R"(SELECT name FROM sqlite_master WHERE type='table';)" ,
         BUILD_CALLBACK_DATA( callbacks::sqlcb_check_table_list ) ,
         ( void* ) &table_checklist ,
         ERR_SQL_CHECK_DB_CMD_EXEC_FAILED
     );
-    if ( !( table_checklist.header == 1 &&
-            table_checklist.data == 1   &&
+    if ( !( table_checklist.format == 1      &&
+            table_checklist.calibration == 1 &&
+            table_checklist.header == 1      &&
+            table_checklist.data == 1        &&
             table_checklist.unknown == 0 ) )
     {
         std::ostringstream oss;
-        oss << "illegal database table list [.header=" << table_checklist.header
+        oss << "illegal database table list [.format=" << table_checklist.format
+            << ", .calibration=" << table_checklist.calibration
+            << ", .header=" << table_checklist.header
             << ", .data=" << table_checklist.data
             << ", .unknown=" << table_checklist.unknown << "]";
         *__out_p_s_errmsg = oss.str();
         LOG_E( WARNING ) << "check table list failed: errmsg: \"" << oss.str() << std::endl; 
         return false;
     } // illegal table list
+
+    LOG_E( INFO ) << "checking format table col list";
+    callbacks::format_table_col_checklist_t format_table_col_checklist = { 0 , 0 , 0 , 0 , 0 , 0 };
+    this -> _exec_sqlcmd(
+        R"(PRAGMA TABLE_INFO(FORMAT);)" ,
+        BUILD_CALLBACK_DATA( callbacks::sqlcb_check_format_table_col ) ,
+        ( void* ) &format_table_col_checklist ,
+        ERR_SQL_CHECK_DB_CMD_EXEC_FAILED
+    );
+    if ( !( format_table_col_checklist.format_version == 1    &&
+            format_table_col_checklist.et_version == 1        &&
+            format_table_col_checklist.et_commit == 1         &&
+            format_table_col_checklist.et_branch == 1         &&
+            format_table_col_checklist.first_create_time == 1 &&
+            format_table_col_checklist.unknown == 0 ) )
+    {
+        std::ostringstream oss;
+        oss << "illegal database format table [.format_version=" << format_table_col_checklist.format_version
+            << ", .et_version=" << format_table_col_checklist.et_version
+            << ", .et_commit=" << format_table_col_checklist.et_commit
+            << ", et_branch=" << format_table_col_checklist.et_branch
+            << ", first_create_time=" << format_table_col_checklist.first_create_time
+            << ", unknown=" << format_table_col_checklist.unknown << "]";
+        *__out_p_s_errmsg = oss.str();
+        LOG_E( WARNING ) << "check format table col list failed: errmsg: \"" << oss.str() << "\"";
+        return false;
+    } // illegal format table
+
+    LOG_E( INFO ) << "checking calibration table col list";
+    callbacks::calibration_table_col_checklist_t calibration_table_col_checklist = { 0 , 0 };
+    this -> _exec_sqlcmd(
+        R"(PRAGMA TABLE_INFO(CALIBRATION);)" ,
+        BUILD_CALLBACK_DATA( callbacks::sqlcb_check_calibration_table_col ) ,
+        ( void* ) &calibration_table_col_checklist ,
+        ERR_SQL_CHECK_DB_CMD_EXEC_FAILED
+    );
+    if ( !( calibration_table_col_checklist.calibration_code == 1 &&
+            calibration_table_col_checklist.unknown == 0 ))
+    {
+        std::ostringstream oss;
+        oss << "illegal database calibration table [.calibration_code=" << calibration_table_col_checklist.calibration_code
+            << ", .unknown=" << calibration_table_col_checklist.unknown << "]";
+        *__out_p_s_errmsg = oss.str();
+        LOG_E( WARNING ) << "check calibration table col list failed: errmsg: \"" << oss.str() << "\"";
+        return false;
+    } // illegal calibration table
+
+    LOG_E( INFO ) << "checking format table length";
+    unsigned int format_table_len = this -> _get_table_len( FORMAT );
+    if ( format_table_len != 1 )
+    {
+        std::ostringstream oss;
+        oss << "illegal database format table length [len=" << format_table_len << "]";
+        *__out_p_s_errmsg = oss.str();
+        LOG_E( WARNING ) << "format table length is not 1, but " << format_table_len;
+        return false;
+    } // illegal format table length
+
+    LOG_E( INFO ) << "checking calibration table length";
+    unsigned int calibration_table_len = this -> _get_table_len( CALIBRATION );
+    if ( calibration_table_len != 1 )
+    {
+        std::ostringstream oss;
+        oss << "illegal database calibration table length [len=" << calibration_table_len << "]";
+        *__out_p_s_errmsg = oss.str();
+        LOG_E( WARNING ) << "calibration table length is not 1, but " << calibration_table_len;
+        return false;
+    } // illegal calibration table length
+
+    LOG_E( INFO ) << "checking calibration code";
+    format_dat_t* format_data = new format_dat_t;
+    calibration_dat_t* calibration_data = new calibration_dat_t;
+    this -> _exec_sqlcmd(
+        R"(SELECT * FROM FORMAT;)" ,
+        BUILD_CALLBACK_DATA( callbacks::sqlcb_get_format_data ) ,
+        ( void* ) format_data ,
+        ERR_SQL_CHECK_DB_CMD_EXEC_FAILED
+    );
+    this -> _exec_sqlcmd(
+        R"(SELECT * FROM CALIBRATION;)" ,
+        BUILD_CALLBACK_DATA( callbacks::sqlcb_get_calibration_data ) ,
+        ( void* ) calibration_data ,
+        ERR_SQL_CHECK_DB_CMD_EXEC_FAILED
+    );
+    std::string code_now = _make_calibration_str(
+        format_data -> format_version ,
+        format_data -> et_version ,
+        format_data -> et_commit ,
+        format_data -> et_branch ,
+        format_data -> first_create_time
+    );
+    if ( calibration_data -> calibration_code != code_now )
+    {
+        std::ostringstream oss;
+        oss << "illegal database calibration code [code=\"" << calibration_data -> calibration_code << "\", code_now=\"" << code_now << "\"]";
+        LOG_E( WARNING ) << "check calibration code failed: code is \"" << code_now << "\", should be \"" << calibration_data -> calibration_code << "\"";
+        delete format_data;
+        delete calibration_data;
+        return false;
+    } // illegal calibration code
+    delete format_data;
+    delete calibration_data;
 
     LOG_E( INFO ) << "checking header table col list";
     callbacks::header_table_col_checklist_t header_table_col_checklist = { 0 , 0 , 0 , 0 , 0 , 0 };
@@ -319,8 +537,10 @@ unsigned int utils::sql::_get_table_len( utils::sql::_tablename_t __e_table ){
     oss << "SELECT COUNT(*) FROM ";
     switch ( __e_table )
     {
-        case HEADER: oss << "HEADER;"; break;
-        case DATA:   oss << "DATA;";   break;
+        case FORMAT:      oss << "FORMAT;"; break;
+        case CALIBRATION: oss << "CALIBRATION"; break;
+        case HEADER:      oss << "HEADER;"; break;
+        case DATA:        oss << "DATA;";   break;
         default: 
             throw sql_exception( ERR_SQL_UNEXPECTED , "database table name enum error" );
             break;

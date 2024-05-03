@@ -10,16 +10,22 @@
 #include"sql_types.h"
 
 #define ERR_SQL_NOT_OPEN                                1
-#define ERR_SQL_CREATE_HEADER_TABLE_FAILED              2
-#define ERR_SQL_CREATE_DATA_TABLE_FAILED                3
-#define ERR_SQL_ILLEGAL_DB                              4
-#define ERR_SQL_CHECK_DB_CMD_EXEC_FAILED                5
-#define ERR_SQL_GET_TABLE_LENGTH_FAILED                 6
-#define ERR_SQL_CLEAN_UP_TABLE_FAILED                   7
-#define ERR_SQL_INSERT_HEADER_TABLE_FAILED              8
-#define ERR_SQL_INSERT_DATA_TABLE_FAILED                9
-#define ERR_SQL_GET_HEADER_DATA_FAILED                 10
-#define ERR_SQL_GET_DATA_DATA_FAILED                   11
+#define ERR_SQL_CREATE_FORMAT_TABLE_FAILED              2
+#define ERR_SQL_CREATE_CALIBRATION_TABLE_FAILED         3
+#define ERR_SQL_CREATE_HEADER_TABLE_FAILED              4
+#define ERR_SQL_CREATE_DATA_TABLE_FAILED                5
+#define ERR_SQL_ILLEGAL_DB                              6
+#define ERR_SQL_CHECK_DB_CMD_EXEC_FAILED                7
+#define ERR_SQL_GET_TABLE_LENGTH_FAILED                 8
+#define ERR_SQL_CLEAN_UP_TABLE_FAILED                   9
+#define ERR_SQL_INSERT_FORMAT_TABLE_FAILED             10
+#define ERR_SQL_INSERT_CALIBRATION_TABLE_FAILED        11
+#define ERR_SQL_INSERT_HEADER_TABLE_FAILED             12
+#define ERR_SQL_INSERT_DATA_TABLE_FAILED               13
+#define ERR_SQL_GET_HEADER_DATA_FAILED                 14
+#define ERR_SQL_GET_DATA_DATA_FAILED                   15
+#define ERR_SQL_FORMAT_TABLE_REWRITE                   16
+#define ERR_SQL_CALIBRATION_TABLE_REWRITE              17
 #define ERR_SQL_UNEXPECTED                            255
 
 namespace rena::et::core::utils {
@@ -48,12 +54,15 @@ namespace rena::et::core::utils {
 
         protected:
             typedef enum {
+                FORMAT,
+                CALIBRATION,
                 HEADER,
                 DATA
             } _tablename_t;
 
         protected:
             void _create_tables();
+            void _write_format_calibration();
             bool _check_db_legality( std::string* __out_p_s_errmsg );
             unsigned int _get_table_len( _tablename_t __e_table );
 
