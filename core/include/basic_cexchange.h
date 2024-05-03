@@ -3,7 +3,7 @@
 
 #include<string>
 
-namespace rena::et::core::utils {
+namespace rena::et::core::utils::cexchange {
 
     class basic_cexchange {
 
@@ -38,6 +38,6 @@ namespace rena::et::core::utils {
 
     }; // class basic_cexchange
 
-} // namespace rena::et::core::utils
+} // namespace rena::et::core::utils::cexchange
 
 #endif // _EXPENSETRACKER_CORE_BASIC_CEXCHANGE_H_

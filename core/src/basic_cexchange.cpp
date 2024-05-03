@@ -8,9 +8,9 @@
 
 #include"basic_cexchange.h"
 
-namespace utils = rena::et::core::utils;
+namespace cexchange = rena::et::core::utils::cexchange;
 
-utils::basic_cexchange::currency_dat_t utils::basic_cexchange::get_currency_data( utils::basic_cexchange::currency_t __sc_currency_num ){
+cexchange::basic_cexchange::currency_dat_t cexchange::basic_cexchange::get_currency_data( cexchange::basic_cexchange::currency_t __sc_currency_num ){
     switch ( __sc_currency_num )
     {
         case AED: return { AED , "AED" , "United Arab Emirates dirham" }; break;
