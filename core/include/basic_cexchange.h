@@ -1,6 +1,7 @@
 #ifndef _EXPENSETRACKER_CORE_BASIC_CEXCHANGE_H_
 #define _EXPENSETRACKER_CORE_BASIC_CEXCHANGE_H_
 
+#include<filesystem>
 #include<string>
 
 namespace rena::et::core::utils::cexchange {
@@ -9,7 +10,8 @@ namespace rena::et::core::utils::cexchange {
 
         public:
             basic_cexchange(){};
-            ~basic_cexchange(){};
+            basic_cexchange( const std::string& __s_api_name );
+            virtual ~basic_cexchange(){};
 
             /**
              * Currency List, follows the Three Letter Currency Code defined in ISO 4217 as of 1 April 2022.
@@ -34,7 +36,14 @@ namespace rena::et::core::utils::cexchange {
 
             static currency_dat_t get_currency_data( currency_t __sc_currency_num );
             virtual double exchange( currency_t __sc_from , currency_t __sc_to ) = 0;
-            virtual bool is_supported( currency_t __sc_currency_num ) = 0;
+            virtual bool is_supported( currency_t __sc_currency_num ) const noexcept = 0;
+            std::string get_current_api_name();
+
+        protected:
+            static std::filesystem::path _get_cache_folder();
+
+        private:
+            std::string _s_api_name;
 
     }; // class basic_cexchange
 

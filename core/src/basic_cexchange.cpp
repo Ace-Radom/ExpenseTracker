@@ -8,7 +8,14 @@
 
 #include"basic_cexchange.h"
 
+#include<shlobj.h>
+#include<windows.h>
+
 namespace cexchange = rena::et::core::utils::cexchange;
+namespace fs = std::filesystem;
+
+cexchange::basic_cexchange::basic_cexchange( const std::string& __s_api_name )
+    : _s_api_name( __s_api_name ){}
 
 cexchange::basic_cexchange::currency_dat_t cexchange::basic_cexchange::get_currency_data( cexchange::basic_cexchange::currency_t __sc_currency_num ){
     switch ( __sc_currency_num )
@@ -195,4 +202,17 @@ cexchange::basic_cexchange::currency_dat_t cexchange::basic_cexchange::get_curre
         case NUL: return { NUL , "NUL" , "Not a currency" }; break;
     }
     return { NUL , "NUL" , "Not a currency" };
+}
+
+fs::path cexchange::basic_cexchange::_get_cache_folder(){
+    TCHAR buf[MAX_PATH];
+    SHGetSpecialFolderPath( NULL , buf , CSIDL_LOCAL_APPDATA , false );
+    fs::path cache_folder( buf );
+    cache_folder /= "ExpenseTracker";
+    cache_folder /= "cache";
+    return cache_folder;
+}
+
+std::string cexchange::basic_cexchange::get_current_api_name(){
+    return this -> _s_api_name;
 }
