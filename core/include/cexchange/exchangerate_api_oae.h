@@ -14,6 +14,7 @@
 #define ERR_EXCHANGERATE_API_JSON_FORMAT_ERROR                  4
 #define ERR_EXCHANGERATE_API_REMOTE_RESPONSE_KEY_NOT_FOUND      5
 #define ERR_EXCHANGERATE_API_REMOTE_RESPONSED_ERROR             6
+#define ERR_EXCHANGERATE_API_EMPTY_URL                          7
 
 namespace rena::et::core::utils::cexchange {
 
@@ -23,7 +24,7 @@ namespace rena::et::core::utils::cexchange {
 
         public:
             ExchangeRate_API_OAE();
-            ExchangeRate_API_OAE( const std::string& __s_conversion_rates_key_name );
+            ExchangeRate_API_OAE( const std::string& __s_api_name , const std::string& __s_conversion_rates_key_name );
             virtual ~ExchangeRate_API_OAE(){};
 
             double exchange( currency_t __sc_from , currency_t __sc_to ) override;

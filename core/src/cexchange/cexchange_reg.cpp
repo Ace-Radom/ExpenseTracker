@@ -1,5 +1,6 @@
 #include"cexchange/cexchange_reg.h"
 #include"cexchange/exchangerate_api_oae.h"
+#include"cexchange/exchangerate_api.h"
 
 #include<algorithm>
 
@@ -13,5 +14,6 @@ cexchange::basic_cexchange* cexchange::cexchange_reg::resolve( const std::string
 }
 
 const std::vector<cexchange::cexchange_reg::creation_reg_t> cexchange::cexchange_reg::_vec_creation_reg = {
-    { "ExchangeRate_API_OAE" , [](){ return new ExchangeRate_API_OAE(); } }
+    { "ExchangeRate_API_OAE" , [](){ return new ExchangeRate_API_OAE(); } } ,
+    { "ExchangeRate_API" , [](){ return new ExchangeRate_API(); } }
 };

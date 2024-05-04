@@ -28,10 +28,14 @@ namespace fs = std::filesystem;
 
 cexchange::ExchangeRate_API_OAE::ExchangeRate_API_OAE()
     : basic_cexchange( "ExchangeRate_API_OAE" ) ,
-      _s_conversion_rates_key_name( "rates" ){}
+      _s_conversion_rates_key_name( "rates" )
+{
+    LOG_E( INFO ) << "using Exchange_Rate_API_OAE for currency exchange";
+}
 
-cexchange::ExchangeRate_API_OAE::ExchangeRate_API_OAE( const std::string& __s_conversion_rates_key_name )
-    : _s_conversion_rates_key_name( __s_conversion_rates_key_name ){}
+cexchange::ExchangeRate_API_OAE::ExchangeRate_API_OAE( const std::string& __s_api_name , const std::string& __s_conversion_rates_key_name )
+    : basic_cexchange( __s_api_name ) ,
+      _s_conversion_rates_key_name( __s_conversion_rates_key_name ){}
 
 double cexchange::ExchangeRate_API_OAE::exchange( cexchange::basic_cexchange::currency_t __sc_from , cexchange::basic_cexchange::currency_t __sc_to ){
     LOG_E( INFO ) << "getting currency exchange rate: from: \"" << this -> get_currency_data( __sc_from ).code << "\", to: \"" << this -> get_currency_data( __sc_to ).code << "\"";
@@ -40,6 +44,7 @@ double cexchange::ExchangeRate_API_OAE::exchange( cexchange::basic_cexchange::cu
     if ( rate > 0 )
     {
         LOG_E( INFO ) << "rate got from cache: rate: " << rate;
+        return rate;
     }
     else
     {
@@ -172,8 +177,16 @@ double cexchange::ExchangeRate_API_OAE::_try_ask_remote( cexchange::basic_cexcha
     unsigned int errnum = 0;
     std::string errmsg;
     std::string content;
+    std::string url = this -> _gen_api_url( __sc_from );
+    if ( url.empty() )
+    {
+        errnum = ERR_EXCHANGERATE_API_EMPTY_URL;
+        errmsg = "empty url generated";
+        LOG_E( WARNING ) << "empty url generated";
+        goto CURL_CLEANUP_SIGN;
+    } // empty url (for ExchangeRate_API)
     CURL_SETOPT_IF_FAILED_GOTO_CLEANUP( curl , res , CURLOPT_HTTPGET , 1L , errnum , errmsg );
-    CURL_SETOPT_IF_FAILED_GOTO_CLEANUP( curl , res , CURLOPT_URL , this -> _gen_api_url( __sc_from ).c_str() , errnum , errmsg );
+    CURL_SETOPT_IF_FAILED_GOTO_CLEANUP( curl , res , CURLOPT_URL , url.c_str() , errnum , errmsg );
     CURL_SETOPT_IF_FAILED_GOTO_CLEANUP( curl , res , CURLOPT_WRITEFUNCTION , &callbacks::curlcb_write_string , errnum , errmsg );
     CURL_SETOPT_IF_FAILED_GOTO_CLEANUP( curl , res , CURLOPT_WRITEDATA , &content , errnum , errmsg );
     CURL_SETOPT_IF_FAILED_GOTO_CLEANUP( curl , res , CURLOPT_TIMEOUT , 10 , errnum , errmsg );
@@ -207,7 +220,7 @@ CURL_CLEANUP_SIGN:
     if ( !reader.parse( content , root ) )
     {
         std::ostringstream oss;
-        oss << "parse ExchangeRate API response failed due to json format error: errmsg: \"" << reader.getFormattedErrorMessages() << "\"";
+        oss << "parse ExchangeRate API response failed due to json format error: errmsg: \"" << reader.getFormattedErrorMessages() << "\", content: \"" << content << "\"";
         LOG_E( WARNING ) << oss.str();
         throw exchangerate_api_exception( ERR_EXCHANGERATE_API_JSON_FORMAT_ERROR , oss.str() );
     } // json format error (although it is highly unexpected)
