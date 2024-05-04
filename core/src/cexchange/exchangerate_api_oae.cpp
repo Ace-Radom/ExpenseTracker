@@ -43,13 +43,29 @@ double cexchange::ExchangeRate_API_OAE::exchange( cexchange::basic_cexchange::cu
     }
     else
     {
-        rate = this -> _try_ask_remote( __sc_from , __sc_to );
-        LOG_E( INFO ) << "rate got from remote: rate: " << rate;
+        LOG_E( INFO ) << "unable to get rate from cache, asking ExchangeRate API remote and refreshing cache...";
+        try {
+            rate = this -> _try_ask_remote( __sc_from , __sc_to );
+            LOG_E( INFO ) << "rate got from remote: rate: " << rate;
+            return rate;
+        }
+        catch ( const exchangerate_api_exception& e )
+        {
+            LOG_E( WARNING ) << "exception caught by calling _try_ask_remote, retry to read cache to get old datas: errmsg: \"" << e.what() << "\"";
+            rate = this -> _try_read_cache( __sc_from , __sc_to , true );
+            if ( rate > 0 )
+            {
+                LOG_E( INFO ) << "got outdated rate from cache: rate: " << rate;
+            }
+            else
+            {
+                LOG_E( WARNING ) << "failed to get outdated rate from cache";
+            }
+            return rate;
+        }
     }
-
-    // HERE: exception should be caught and handled
-
-    return rate;
+    
+    return -1;
 }
 
 bool cexchange::ExchangeRate_API_OAE::is_supported( cexchange::basic_cexchange::currency_t __sc_currency_num ) const noexcept {
