@@ -11,6 +11,7 @@ set(BUILD_STATIC_LIBS OFF)
 set(BUILD_OBJECT_LIBS OFF)
 set(JSONCPP_INSTALL_LIBS_ONLY ON)
 set(JSONCPP_INSTALL_ALL_LIBS_TO_BIN_DIR ON)
+set(JSONCPP_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/jsoncpp/include" CACHE INTERNAL "${CMAKE_CURRENT_SOURCE_DIR}/jsoncpp/include")
 add_subdirectory(jsoncpp)
 
 add_subdirectory(mini)
