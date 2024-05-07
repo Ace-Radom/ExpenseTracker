@@ -6,8 +6,11 @@ def split_data_type_and_default_value( data: str ) -> tuple[str,str]:
 def update_config_declaration( item: str , data_type: str ) -> str:
     return f"            static { data_type } { item.upper() };\n"
 
-def update_config_default_settings( item: str , default_value: str ) -> str:
-    return f"    this -> { item.upper() } = { default_value };\n"
+def update_config_default_settings( item: str , data_type: str , default_value: str ) -> str:
+    if data_type == "const char*":
+        return f"    this -> { item.upper() } = \"{ default_value }\";\n"
+    else:
+        return f"    this -> { item.upper() } = { default_value };\n"
 
 def update_config_definition( item: str , data_type: str ) -> str:
     return f"{ data_type } core::config::{ item.upper() };\n"
@@ -22,7 +25,7 @@ def update_config_read_key( section: str , item: str , data_type: str , default_
     config_read_key += f"        throw config_exception( ERR_CONFIG_CFGFILE_FORMAT_ERROR , \"config file section \\\"{ section }\\\" doesn't have node \\\"{ item }\\\"\" );\n"
     config_read_key += "    }\n"
     if data_type == "const char*":
-        config_read_key += f"    this -> { item.upper() } = ini[\"{ section }\"][\"{ item }\"];\n"
+        config_read_key += f"    this -> { item.upper() } = ini[\"{ section }\"][\"{ item }\"].c_str();\n"
     elif data_type == "bool":
         config_read_key += f"    this -> { item.upper() } = ini[\"{ section }\"][\"{ item }\"] != \"0\";\n"
     elif data_type == "int":
@@ -79,7 +82,7 @@ def main():
             print( f"Parsing item: { item }..." )
             data_type , default_value = split_data_type_and_default_value( item[1] )
             i_config_declaration += update_config_declaration( item[0] , data_type )
-            i_config_default_settings += update_config_default_settings( item[0] , default_value )
+            i_config_default_settings += update_config_default_settings( item[0] , data_type , default_value )
             i_config_definition += update_config_definition( item[0] , data_type )
             i_config_read += update_config_read_key( section , item[0] , data_type , default_value )
             i_config_create += update_config_create( section , item[0] , data_type , default_value )

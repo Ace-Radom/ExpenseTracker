@@ -51,6 +51,7 @@ core::config::config(){
 void core::config::reset_to_default_cfg(){
     this -> DEFAULT_ENABLE_BALANCE = false;
     this -> ENABLE_LOG = true;
+    this -> DEFAULT_CURRENCY_EXCHANGE_API = "ExchangeRate_API_OAE";
     this -> MIN_LOG_SEVERITY = 1;
     this -> REFRESH_FREQUENCY = 20;
     return;
@@ -69,6 +70,7 @@ const char* core::config::BCFG_BUILD_TIME;
 
 bool core::config::DEFAULT_ENABLE_BALANCE;
 bool core::config::ENABLE_LOG;
+const char* core::config::DEFAULT_CURRENCY_EXCHANGE_API;
 int core::config::MIN_LOG_SEVERITY;
 int core::config::REFRESH_FREQUENCY;
 
@@ -93,6 +95,11 @@ void core::config::_read_cfg( fs::path& __p_path ){
         throw config_exception( ERR_CONFIG_CFGFILE_FORMAT_ERROR , "config file section \"expensetracker\" doesn't have node \"enable_log\"" );
     }
     this -> ENABLE_LOG = ini["expensetracker"]["enable_log"] != "0";
+    if ( !ini["expensetracker"].has( "default_currency_exchange_api" ) )
+    {
+        throw config_exception( ERR_CONFIG_CFGFILE_FORMAT_ERROR , "config file section \"expensetracker\" doesn't have node \"default_currency_exchange_api\"" );
+    }
+    this -> DEFAULT_CURRENCY_EXCHANGE_API = ini["expensetracker"]["default_currency_exchange_api"].c_str();
     if ( !ini.has( "g3log" ) )
     {
         throw config_exception( ERR_CONFIG_CFGFILE_FORMAT_ERROR , "config file doesn't have section \"g3log\"" );
@@ -127,6 +134,7 @@ bool core::config::_write_default_cfg( fs::path& __p_path ){
     mINI::INIStructure ini;
     ini["expensetracker"]["default_enable_balance"] = "0";
     ini["expensetracker"]["enable_log"] = "1";
+    ini["expensetracker"]["default_currency_exchange_api"] = "ExchangeRate_API_OAE";
     ini["g3log"]["min_log_severity"] = "1";
     ini["g3log"]["refresh_frequency"] = "20";
     return inif.generate( ini );

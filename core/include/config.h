@@ -44,6 +44,7 @@ namespace rena::et::core {
 
             static bool DEFAULT_ENABLE_BALANCE;
             static bool ENABLE_LOG;
+            static const char* DEFAULT_CURRENCY_EXCHANGE_API;
             static int MIN_LOG_SEVERITY;
             static int REFRESH_FREQUENCY;
 
