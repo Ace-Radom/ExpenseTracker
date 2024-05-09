@@ -48,4 +48,5 @@ configure_file(
 include(cmake/download_buildin_curl.cmake)
 
 add_subdirectory(core)
+add_subdirectory(etscript)
 add_subdirectory(cli)
