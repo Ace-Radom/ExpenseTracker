@@ -1,7 +1,7 @@
 #ifndef _EXPENSETRACKER_CORE_LOG_H_
 #define _EXPENSETRACKER_CORE_LOG_H_
 
-#include"config.h"
+#include"core/config.h"
 #include"g3log/g3log.hpp"
 
 #define LOG_E( level )  \

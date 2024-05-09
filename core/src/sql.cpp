@@ -1,8 +1,7 @@
-#include"sql.h"
-#include"build_cfgs.h"
-#include"sql_callbacks.h"
-#include"log.h"
-
+#include"core/sql.h"
+#include"core/build_cfgs.h"
+#include"core/sql_callbacks.h"
+#include"core/log.h"
 
 #include<openssl/sha.h>
 

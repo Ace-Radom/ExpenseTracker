@@ -5,7 +5,7 @@
 #include<typeindex>
 #include<vector>
 
-#include"core.h"
+#include"core/core.h"
 
 namespace rena::et::etscript {
 

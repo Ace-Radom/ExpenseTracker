@@ -1,7 +1,7 @@
-#include"cexchange/exchangerate_api_oae.h"
-#include"curl_callbacks.h"
-#include"curl_control.h"
-#include"log.h"
+#include"core/cexchange/exchangerate_api_oae.h"
+#include"core/curl_callbacks.h"
+#include"core/curl_control.h"
+#include"core/log.h"
 
 #include<curl/curl.h>
 

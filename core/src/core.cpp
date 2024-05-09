@@ -1,7 +1,7 @@
-#include"core.h"
-#include"config.h"
-#include"g3log_sink.h"
-#include"log.h"
+#include"core/core.h"
+#include"core/config.h"
+#include"core/g3log_sink.h"
+#include"core/log.h"
 
 #include<algorithm>
 #include<cctype>

@@ -5,7 +5,7 @@
 #include<memory>
 #include<string>
 
-#include"exception.h"
+#include"core/exception.h"
 #include"g3log/loglevels.hpp"
 #include"g3log/logmessage.hpp"
 

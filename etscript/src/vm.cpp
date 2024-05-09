@@ -1,5 +1,5 @@
-#include"vm.h"
-#include"log.h"
+#include"etscript/vm.h"
+#include"core/log.h"
 
 #include<cassert>
 #include<chrono>

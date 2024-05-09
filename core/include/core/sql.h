@@ -4,10 +4,9 @@
 #include<filesystem>
 #include<vector>
 
+#include"core/exception.h"
+#include"core/sql_types.h"
 #include"sqlite3.h"
-
-#include"exception.h"
-#include"sql_types.h"
 
 #define ERR_SQL_NOT_OPEN                                1
 #define ERR_SQL_CREATE_FORMAT_TABLE_FAILED              2

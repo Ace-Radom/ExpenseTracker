@@ -1,8 +1,6 @@
 #ifndef _EXPENSETRACKER_CORE_CURL_CONTROL_H_
 #define _EXPENSETRACKER_CORE_CURL_CONTROL_H_
 
-#include"log.h"
-
 #define CURL_CLEANUP_SIGN curl_cleanup
 
 namespace rena::et::core::utils {

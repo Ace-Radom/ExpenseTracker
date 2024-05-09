@@ -1,8 +1,6 @@
 #ifndef _EXPENSETRACKER_CORE_SQL_CALLBACKS_H_
 #define _EXPENSETRACKER_CORE_SQL_CALLBACKS_H_
 
-#include"sqlite3.h"
-
 namespace rena::et::core::utils::callbacks {
 
     typedef struct {

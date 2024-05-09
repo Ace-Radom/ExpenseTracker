@@ -6,7 +6,7 @@
  * If something is wrong, please fix it in core/tools/templates/update_basic_cexchange/basic_cexchange.cpp.in first
  */
 
-#include"basic_cexchange.h"
+#include"core/basic_cexchange.h"
 
 #include<shlobj.h>
 #include<windows.h>
@@ -179,22 +179,22 @@ cexchange::basic_cexchange::currency_dat_t cexchange::basic_cexchange::get_curre
         case VUV: return { VUV , "VUV" , "Vanuatu vatu" }; break;
         case WST: return { WST , "WST" , "Samoan tala" }; break;
         case XAF: return { XAF , "XAF" , "CFA franc BEAC" }; break;
-        case XAG: return { XAG , "XAG" , "Silver (one troy ounce" }; break;
-        case XAU: return { XAU , "XAU" , "Gold (one troy ounce" }; break;
-        case XBA: return { XBA , "XBA" , "European Composite Unit (EURCO) (bond market unit" }; break;
-        case XBB: return { XBB , "XBB" , "European Monetary Unit (E.M.U.-6) (bond market unit" }; break;
-        case XBC: return { XBC , "XBC" , "European Unit of Account 9 (E.U.A.-9) (bond market unit" }; break;
-        case XBD: return { XBD , "XBD" , "European Unit of Account 17 (E.U.A.-17) (bond market unit" }; break;
+        case XAG: return { XAG , "XAG" , "Silver (one troy ounce)" }; break;
+        case XAU: return { XAU , "XAU" , "Gold (one troy ounce)" }; break;
+        case XBA: return { XBA , "XBA" , "European Composite Unit (EURCO) (bond market unit)" }; break;
+        case XBB: return { XBB , "XBB" , "European Monetary Unit (E.M.U.-6) (bond market unit)" }; break;
+        case XBC: return { XBC , "XBC" , "European Unit of Account 9 (E.U.A.-9) (bond market unit)" }; break;
+        case XBD: return { XBD , "XBD" , "European Unit of Account 17 (E.U.A.-17) (bond market unit)" }; break;
         case XCD: return { XCD , "XCD" , "East Caribbean dollar" }; break;
         case XDR: return { XDR , "XDR" , "Special drawing rights" }; break;
         case XOF: return { XOF , "XOF" , "CFA franc BCEAO" }; break;
-        case XPD: return { XPD , "XPD" , "Palladium (one troy ounce" }; break;
+        case XPD: return { XPD , "XPD" , "Palladium (one troy ounce)" }; break;
         case XPF: return { XPF , "XPF" , "CFP franc (franc Pacifique)" }; break;
-        case XPT: return { XPT , "XPT" , "Platinum (one troy ounce" }; break;
+        case XPT: return { XPT , "XPT" , "Platinum (one troy ounce)" }; break;
         case XSU: return { XSU , "XSU" , "SUCRE" }; break;
-        case XTS: return { XTS , "XTS" , "Code reserved for testin" }; break;
+        case XTS: return { XTS , "XTS" , "Code reserved for testing" }; break;
         case XUA: return { XUA , "XUA" , "ADB Unit of Account" }; break;
-        case XXX: return { XXX , "XXX" , "No currenc" }; break;
+        case XXX: return { XXX , "XXX" , "No currency" }; break;
         case YER: return { YER , "YER" , "Yemeni rial" }; break;
         case ZAR: return { ZAR , "ZAR" , "South African rand" }; break;
         case ZMW: return { ZMW , "ZMW" , "Zambian kwacha" }; break;
