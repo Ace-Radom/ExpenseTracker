@@ -297,14 +297,13 @@ void utils::sql::_write_format_calibration(){
 
     auto now = std::chrono::system_clock::now();
     auto now_ts = std::chrono::system_clock::to_time_t( now );
-    time_t utc_now_ts = std::mktime( std::gmtime( &now_ts ) );
 
     std::ostringstream oss;
     oss << "INSERT INTO FORMAT VALUES (" << DB_VERSION << ",'"
                                          << BUILD_CFG_VERSION << "','"
                                          << BUILD_CFG_BUILD_GIT_COMMIT << "','"
                                          << BUILD_CFG_BUILD_GIT_BRANCH << "',"
-                                         << utc_now_ts << ");";
+                                         << now_ts << ");";
     LOG_E( INFO ) << "writing format";
     this -> _exec_sqlcmd(
         oss.str() ,
@@ -317,7 +316,7 @@ void utils::sql::_write_format_calibration(){
         BUILD_CFG_VERSION ,
         BUILD_CFG_BUILD_GIT_COMMIT ,
         BUILD_CFG_BUILD_GIT_BRANCH ,
-        utc_now_ts
+        now_ts
     ) << "');";
     LOG_E( INFO ) << "writing calibration";
     this -> _exec_sqlcmd(
