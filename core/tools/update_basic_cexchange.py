@@ -28,7 +28,10 @@ def main():
                 tab_pos = this_line.find( '\t' , tab_pos + 1 )
                 if tab_pos == -1:
                     raise Exception( "third tab not found" )
-            currency_name = this_line[tab_pos+1:this_line.find( '\t' , tab_pos + 1 )]
+            end_pos = this_line.find( '\t' , tab_pos + 1 )
+            if end_pos == -1:
+                end_pos = len( this_line )
+            currency_name = this_line[tab_pos+1:end_pos]
 
             i_currency_cases += update_currency_cases( currency_code , currency_name )
 
