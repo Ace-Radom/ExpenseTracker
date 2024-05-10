@@ -30,6 +30,10 @@ jobs:
         run: python3 ${{github.workspace}}/core/tools/update_basic_cexchange.py
         working-directory: ${{github.workspace}}/core/tools
 
+      - name: Generate ~/etscript/tests/CMakeLists.txt
+        run: python3 ${{github.workspace}}/etscript/tools/update_tests.py
+        working-directory: ${{github.workspace}}/etscript/tools
+
       - name: Extract Branch Name
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         id: extract_branch
