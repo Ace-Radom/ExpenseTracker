@@ -23,9 +23,11 @@ jobs:
 
       - name: Generate ~/core/include/core/config.h & ~/core/src/config.cpp
         run: python3 ${{github.workspace}}/core/tools/update_config.py
+        working-directory: ${{github.workspace}}/core/tools
 
       - name: Generate ~/core/src/basic_cexchange.cpp
         run: python3 ${{github.workspace}}/core/tools/update_basic_cexchange.py
+        working-directory: ${{github.workspace}}/core/tools
 
       - name: Extract Branch Name
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
