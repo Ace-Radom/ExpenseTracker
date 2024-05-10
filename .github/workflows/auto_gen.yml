@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "core/tools/**"
+      - "etscript/tools/**"
 
 env:
   PYTHON_VERSION: 3.9
