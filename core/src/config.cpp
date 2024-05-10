@@ -6,8 +6,8 @@
  * If something is wrong, please fix it in core/tools/templates/update_config/config.cpp.in first
  */
 
-#include"core/config.h"
-#include"core/build_cfgs.h"
+#include"config.h"
+#include"build_cfgs.h"
 #include"mini.h"
 
 #include<shlobj.h>
