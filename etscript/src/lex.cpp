@@ -109,14 +109,15 @@ void etscript::lex::parse(){
             {
                 token_data_t this_token_data;
                 this_token_data.type = Div;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
                 this -> _v_tokens.push_back( this_token_data );
             } // div
             continue;
         } // '/' (comment / div)
         
 
-        this -> _i_col++;
-        this -> _it_src++;
+        this -> next();
     }
 
 }
