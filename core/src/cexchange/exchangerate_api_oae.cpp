@@ -133,8 +133,7 @@ double cexchange::ExchangeRate_API_OAE::_try_read_cache( cexchange::basic_cexcha
         } // cannot get next update time
         time_t utc_next_update_ts = root["time_next_update_ts_utc"].asInt64();
         auto now = std::chrono::system_clock::now();
-        auto now_ts = std::chrono::system_clock::to_time_t( now );
-        time_t utc_now_ts = std::mktime( std::gmtime( &now_ts ) );
+        auto utc_now_ts = std::chrono::system_clock::to_time_t( now );
         if ( utc_now_ts > utc_next_update_ts )
         {
             LOG_E( INFO ) << "cache should be refreshed: utc_next_update_ts: " << utc_next_update_ts << " utc_now_ts: " << utc_now_ts;
