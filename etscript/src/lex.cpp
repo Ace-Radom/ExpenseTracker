@@ -232,7 +232,7 @@ void etscript::lex::parse(){
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             this -> _v_tokens.push_back( this_token_data );
-        }//'(' only
+        } // '(' only
         else if ( token == ')' )
         {
             token_data_t this_token_data;
@@ -240,7 +240,7 @@ void etscript::lex::parse(){
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             this -> _v_tokens.push_back( this_token_data );
-        }//')' only
+        } // ')' only
         else if ( token == '{' )
         {
             token_data_t this_token_data;
@@ -248,7 +248,7 @@ void etscript::lex::parse(){
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             this -> _v_tokens.push_back( this_token_data );
-        }//'{' only
+        } // '{' only
         else if ( token == '}' )
         {
             token_data_t this_token_data;
@@ -256,7 +256,7 @@ void etscript::lex::parse(){
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             this -> _v_tokens.push_back( this_token_data );
-        }//'}' only
+        } // '}' only
         else if ( token == ';' )
         {
             token_data_t this_token_data;
@@ -264,7 +264,7 @@ void etscript::lex::parse(){
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             this -> _v_tokens.push_back( this_token_data );
-        }//';' only
+        } // ';' only
         else if ( token == '+' )
         {
             token_data_t this_token_data;
@@ -272,7 +272,7 @@ void etscript::lex::parse(){
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             this -> _v_tokens.push_back( this_token_data );
-        }//'+' only
+        } // '+' only
         else if ( token == '-' )
         {
             token_data_t this_token_data;
@@ -280,7 +280,7 @@ void etscript::lex::parse(){
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             this -> _v_tokens.push_back( this_token_data );
-        }//'-' only
+        } // '-' only
         else if ( token == '*' )
         {
             token_data_t this_token_data;
@@ -288,7 +288,7 @@ void etscript::lex::parse(){
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             this -> _v_tokens.push_back( this_token_data );
-        }//'*' only
+        } // '*' only
         else if ( token == '%' )
         {
             token_data_t this_token_data;
@@ -296,7 +296,7 @@ void etscript::lex::parse(){
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             this -> _v_tokens.push_back( this_token_data );
-        }//'%' only
+        } // '%' only
 
         this -> next();
     }
