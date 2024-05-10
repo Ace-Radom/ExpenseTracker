@@ -17,3 +17,5 @@ target_include_directories(etscript
 target_link_libraries(etscript
     etcore
 )
+
+add_subdirectory(tests)

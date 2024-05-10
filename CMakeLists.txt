@@ -47,6 +47,8 @@ configure_file(
 
 include(cmake/download_builtin_curl.cmake)
 
+enable_testing()
+
 add_subdirectory(core)
 add_subdirectory(etscript)
 add_subdirectory(cli)
