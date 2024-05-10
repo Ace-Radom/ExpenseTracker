@@ -13,7 +13,7 @@
 #include<fstream>
 #include<string>
 
-#include"exception.h"
+#include"core/exception.h"
 
 #define ERR_CONFIG_CFGFILE_CREATE_FAILED                    1
 #define ERR_CONFIG_CFGFILE_READ_FAILED                      2

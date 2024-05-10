@@ -40,12 +40,12 @@ execute_process(
 string(TIMESTAMP BUILD_TIME %Y.%m.%d)
 configure_file(
     ${CMAKE_SOURCE_DIR}/build_cfgs.h.in
-    ${CMAKE_SOURCE_DIR}/core/include/build_cfgs.h
+    ${CMAKE_SOURCE_DIR}/core/include/core/build_cfgs.h
     @ONLY
 )
 # parse build cfgs
 
-include(cmake/download_buildin_curl.cmake)
+include(cmake/download_builtin_curl.cmake)
 
 add_subdirectory(core)
 add_subdirectory(etscript)
