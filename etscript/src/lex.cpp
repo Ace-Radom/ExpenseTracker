@@ -115,7 +115,188 @@ void etscript::lex::parse(){
             } // div
             continue;
         } // '/' (comment / div)
-        
+        else if ( token == '|' )
+        {
+            token = this -> next();
+            if ( token == '|' )
+            {
+                token_data_t this_token_data;
+                this_token_data.type = Lor; //>>LOr
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+                continue;
+            }
+        }// '||' implementation
+        else if ( token == '=' )
+        {
+            token = this -> next();
+            if ( token == '=' )
+            {
+                token_data_t this_token_data;
+                this_token_data.type = Eq;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+            }//'=='
+            else
+            {
+                token_data_t this_token_data;
+                this_token_data.type = Assign;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col;
+                this -> _v_tokens.push_back( this_token_data );
+            }//'='
+            continue;
+        }//'=' and '==' implementation
+        else if ( token == '!' )
+        {
+            token = this -> next();
+            if ( token == '=' )
+            {
+                token_data_t this_token_data;
+                this_token_data.type = Ne; //couldve used something better like NotEq, Ne is unintuitive
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+            }
+            else
+            {
+                token_data_t this_token_data;
+                this_token_data.type = Not;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col;
+                this -> _v_tokens.push_back( this_token_data );
+            }
+            continue;
+        }//'!' and '!=' implementation
+        else if ( token == '<' )
+        {
+            token = this -> next();
+            if ( token == '=' )
+            {
+                token_data_t this_token_data;
+                this_token_data.type = Le; //unintuitive, >>LwerEq
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+            }
+            else
+            {
+                token_data_t this_token_data;
+                this_token_data.type = Lt; //>>Lwer
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col;
+                this -> _v_tokens.push_back( this_token_data );
+            }
+            continue;
+        }//'<' and '<=' implementation
+        else if ( token == '>' )
+        {
+            token = this -> next();
+            if ( token == '=' )
+            {
+                token_data_t this_token_data;
+                this_token_data.type = Ge; //>>GterEq
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+            }
+            else
+            {
+                token_data_t this_token_data;
+                this_token_data.type = Gt; //>>Gter
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col;
+                this -> _v_tokens.push_back( this_token_data );
+            }
+            continue;
+        }//'>' and '>=' implementation
+        else if ( token == '&' )
+        {
+            token = this -> next();
+            if ( token == '&' )
+           {
+                token_data_t this_token_data;
+                this_token_data.type = Land; //>>LAnd, or you just forgot 'Land' being a single word
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+                continue;
+           } 
+        }//'&&' implementation
+        else if ( token == '(' )
+        {
+            token_data_t this_token_data;
+            this_token_data.type = Lrb; //>>LftRndBrkt
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        }//'(' only
+        else if ( token == ')' )
+        {
+            token_data_t this_token_data;
+            this_token_data.type = Rrb; //>>RhtRndBrkt
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        }//')' only
+        else if ( token == '{' )
+        {
+            token_data_t this_token_data;
+            this_token_data.type = Lcb; //>>LftCurBrkt, also why its not small/medium/big brackets?
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        }//'{' only
+        else if ( token == '}' )
+        {
+            token_data_t this_token_data;
+            this_token_data.type = Rcb; //>>RhtCurBrkt
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        }//'}' only
+        else if ( token == ';' )
+        {
+            token_data_t this_token_data;
+            this_token_data.type = Semic; //>>SemiCol
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        }//';' only
+        else if ( token == '+' )
+        {
+            token_data_t this_token_data;
+            this_token_data.type = Add;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        }//'+' only
+        else if ( token == '-' )
+        {
+            token_data_t this_token_data;
+            this_token_data.type = Sub;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        }//'-' only
+        else if ( token == '*' )
+        {
+            token_data_t this_token_data;
+            this_token_data.type = Mul; //>>Multi
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        }//'*' only
+        else if ( token == '%' )
+        {
+            token_data_t this_token_data;
+            this_token_data.type = Mod;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        }//'%' only
 
         this -> next();
     }
