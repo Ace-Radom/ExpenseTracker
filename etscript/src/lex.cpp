@@ -144,7 +144,7 @@ void etscript::lex::parse(){
                 token_data_t this_token_data;
                 this_token_data.type = Assign;
                 this_token_data.line = this -> _i_line;
-                this_token_data.column = this -> _i_col;
+                this_token_data.column = this -> _i_col - 1;
                 this -> _v_tokens.push_back( this_token_data );
             }//'='
             continue;
@@ -165,7 +165,7 @@ void etscript::lex::parse(){
                 token_data_t this_token_data;
                 this_token_data.type = Not;
                 this_token_data.line = this -> _i_line;
-                this_token_data.column = this -> _i_col;
+                this_token_data.column = this -> _i_col - 1;
                 this -> _v_tokens.push_back( this_token_data );
             }
             continue;
@@ -186,7 +186,7 @@ void etscript::lex::parse(){
                 token_data_t this_token_data;
                 this_token_data.type = Lt; //>>Lwer
                 this_token_data.line = this -> _i_line;
-                this_token_data.column = this -> _i_col;
+                this_token_data.column = this -> _i_col - 1;
                 this -> _v_tokens.push_back( this_token_data );
             }
             continue;
@@ -207,7 +207,7 @@ void etscript::lex::parse(){
                 token_data_t this_token_data;
                 this_token_data.type = Gt; //>>Gter
                 this_token_data.line = this -> _i_line;
-                this_token_data.column = this -> _i_col;
+                this_token_data.column = this -> _i_col - 1;
                 this -> _v_tokens.push_back( this_token_data );
             }
             continue;
