@@ -6,6 +6,8 @@
  * If something is wrong, please fix it in core/tools/templates/update_basic_cexchange/basic_cexchange.cpp.in first
  */
 
+// only some changes to trigger auto_gen action
+
 #include"core/basic_cexchange.h"
 
 #include<shlobj.h>
