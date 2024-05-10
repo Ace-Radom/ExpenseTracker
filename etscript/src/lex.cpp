@@ -1,6 +1,8 @@
 #include"etscript/lex.h"
 #include"core/log.h"
 
+#include<iostream>
+
 namespace etscript = rena::et::etscript;
 
 etscript::lex::lex(){
@@ -25,6 +27,7 @@ void etscript::lex::parse(){
     {
         long long hash = 0;
         char token = *( this -> _it_src );
+        token_data_t this_token_data = {};
         if ( token == '\n' )
         {
             LOG_E( DEBUG ) << "met break line";
@@ -34,7 +37,6 @@ void etscript::lex::parse(){
         } // break line
         else if ( ( token >= 'a' && token <= 'z' ) || ( token >= 'A' && token <= 'Z' ) || ( token == '_' ) )
         {
-            token_data_t this_token_data;
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             std::string name;
@@ -58,17 +60,18 @@ void etscript::lex::parse(){
         } // word
         else if ( token >= '0' && token <= '9' )
         {
-            token_data_t this_token_data;
             this_token_data.type = Num;
             this_token_data.line = this -> _i_line;
             this_token_data.column = this -> _i_col;
             int token_val = token - '0';
             if ( token_val > 0 )
             {
-                do {
+                token = this -> next();
+                while ( token >= '0' && token <= '9' )
+                {
                     token_val = token_val * 10 + token - '0';
                     token = this -> next();
-                } while ( token >= '0' && token <= '9' );
+                }
             } // DEC
             else
             {
@@ -107,7 +110,6 @@ void etscript::lex::parse(){
             } // comment
             else
             {
-                token_data_t this_token_data;
                 this_token_data.type = Div;
                 this_token_data.line = this -> _i_line;
                 this_token_data.column = this -> _i_col - 1;
@@ -115,11 +117,179 @@ void etscript::lex::parse(){
             } // div
             continue;
         } // '/' (comment / div)
-        
+        else if ( token == '|' )
+        {
+            token = this -> next();
+            if ( token == '|' )
+            {
+                this_token_data.type = LOr;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+            } // '||'
+        } // '||' implementation
+        else if ( token == '=' )
+        {
+            token = this -> next();
+            if ( token == '=' )
+            {
+                this_token_data.type = Eq;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+            } // '=='
+            else
+            {
+                this_token_data.type = Assign;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+                continue;
+            } // '='
+        } // '=' and '==' implementation
+        else if ( token == '!' )
+        {
+            token = this -> next();
+            if ( token == '=' )
+            {
+                this_token_data.type = NotEq;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+            } // '!='
+            else
+            {
+                this_token_data.type = Not;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+                continue;
+            } // '!'
+        } // '!' and '!=' implementation
+        else if ( token == '<' )
+        {
+            token = this -> next();
+            if ( token == '=' )
+            {
+                this_token_data.type = LwerEq;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+            } // '<='
+            else
+            {
+                this_token_data.type = Lwer;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+            } // '<'
+            continue;
+        } // '<' and '<=' implementation
+        else if ( token == '>' )
+        {
+            token = this -> next();
+            if ( token == '=' )
+            {
+                this_token_data.type = GterEq;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+            } // '>='
+            else
+            {
+                this_token_data.type = Gter;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+                continue;
+            } // '>'
+        } // '>' and '>=' implementation
+        else if ( token == '&' )
+        {
+            token = this -> next();
+            if ( token == '&' )
+           {
+                this_token_data.type = LAnd;
+                this_token_data.line = this -> _i_line;
+                this_token_data.column = this -> _i_col - 1;
+                this -> _v_tokens.push_back( this_token_data );
+           } 
+        } // '&&' implementation
+        else if ( token == '(' )
+        {
+            this_token_data.type = LftRndBrkt;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        } // '(' only
+        else if ( token == ')' )
+        {
+            this_token_data.type = RhtRndBrkt;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        } // ')' only
+        else if ( token == '{' )
+        {
+            this_token_data.type = LftCurBrkt;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        } // '{' only
+        else if ( token == '}' )
+        {
+            this_token_data.type = RhtCurBrkt;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        } // '}' only
+        else if ( token == ';' )
+        {
+            this_token_data.type = SemiCol;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        } // ';' only
+        else if ( token == '+' )
+        {
+            this_token_data.type = Add;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        } // '+' only
+        else if ( token == '-' )
+        {
+            this_token_data.type = Sub;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        } // '-' only
+        else if ( token == '*' )
+        {
+            this_token_data.type = Mul;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        } // '*' only
+        else if ( token == '%' )
+        {
+            this_token_data.type = Mod;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            this -> _v_tokens.push_back( this_token_data );
+        } // '%' only
 
         this -> next();
     }
+    return;
+}
 
+void etscript::lex::trace(){
+    for ( const auto& it : this -> _v_tokens )
+    {
+        std::cout << it.type << "|" << it.hash << "|" << it.name << "|" << it.value << "|" << it.line << "|" << it.column << std::endl;
+    }
+    return;
 }
 
 char etscript::lex::next(){
