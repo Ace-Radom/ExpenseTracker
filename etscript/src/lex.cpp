@@ -127,7 +127,7 @@ void etscript::lex::parse(){
                 this -> _v_tokens.push_back( this_token_data );
                 continue;
             }
-        }// '||' implementation
+        } // '||' implementation
         else if ( token == '=' )
         {
             token = this -> next();
@@ -138,7 +138,7 @@ void etscript::lex::parse(){
                 this_token_data.line = this -> _i_line;
                 this_token_data.column = this -> _i_col - 1;
                 this -> _v_tokens.push_back( this_token_data );
-            }//'=='
+            } //'=='
             else
             {
                 token_data_t this_token_data;
@@ -146,16 +146,16 @@ void etscript::lex::parse(){
                 this_token_data.line = this -> _i_line;
                 this_token_data.column = this -> _i_col - 1;
                 this -> _v_tokens.push_back( this_token_data );
-            }//'='
+            } //'='
             continue;
-        }//'=' and '==' implementation
+        } // '=' and '==' implementation
         else if ( token == '!' )
         {
             token = this -> next();
             if ( token == '=' )
             {
                 token_data_t this_token_data;
-                this_token_data.type = Ne; //couldve used something better like NotEq, Ne is unintuitive
+                this_token_data.type = Ne;
                 this_token_data.line = this -> _i_line;
                 this_token_data.column = this -> _i_col - 1;
                 this -> _v_tokens.push_back( this_token_data );
@@ -169,7 +169,7 @@ void etscript::lex::parse(){
                 this -> _v_tokens.push_back( this_token_data );
             }
             continue;
-        }//'!' and '!=' implementation
+        } // '!' and '!=' implementation
         else if ( token == '<' )
         {
             token = this -> next();
@@ -190,7 +190,7 @@ void etscript::lex::parse(){
                 this -> _v_tokens.push_back( this_token_data );
             }
             continue;
-        }//'<' and '<=' implementation
+        } // '<' and '<=' implementation
         else if ( token == '>' )
         {
             token = this -> next();
@@ -211,7 +211,7 @@ void etscript::lex::parse(){
                 this -> _v_tokens.push_back( this_token_data );
             }
             continue;
-        }//'>' and '>=' implementation
+        } // '>' and '>=' implementation
         else if ( token == '&' )
         {
             token = this -> next();
@@ -224,7 +224,7 @@ void etscript::lex::parse(){
                 this -> _v_tokens.push_back( this_token_data );
                 continue;
            } 
-        }//'&&' implementation
+        } // '&&' implementation
         else if ( token == '(' )
         {
             token_data_t this_token_data;
