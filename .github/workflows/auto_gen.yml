@@ -32,7 +32,7 @@ jobs:
         id: extract_branch
 
       - name: Push New Generated Codes
-        uses: action-js/push@master
+        uses: actions-js/push@master
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
           author_email: ${{secrets.BOT_EMAIL}}
