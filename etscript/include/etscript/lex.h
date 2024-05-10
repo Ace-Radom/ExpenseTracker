@@ -14,13 +14,15 @@ namespace rena::et::etscript {
 
             void mount_src( const std::string& __s_src );
             void parse();
+            void trace();
 
         public:
             typedef enum {
-                Assign , Not , Lor , Land , Eq , Ne , Lt , Le , Gt , Ge , Add , Sub , Mul , Div , Mod ,
+                Assign , Not , LOr , LAnd , Eq , NotEq , Lwer , LwerEq , Gter , GterEq , Add , Sub , Mul , Div , Mod ,
                 If , Else , While ,
                 Word , Num ,
-                Lrb , Rrb , Lcb , Rcb , Semic
+                LftRndBrkt , RhtRndBrkt , LftCurBrkt , RhtCurBrkt , SemiCol ,
+                Unknown
             } token_type_t;
 
             typedef struct {
