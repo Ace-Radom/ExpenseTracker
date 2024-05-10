@@ -23,12 +23,13 @@ target_include_directories(etcore
     PUBLIC
         ${CORE_INCLUDE_DIR}
         ${CURL_INCLUDE_DIR}
-        ${MINI_INCLUDE_DIR}
         ${G3LOG_INCLUDE_SRC_DIR}
         ${G3LOG_INCLUDE_BIN_DIR}
+        ${SQLITE3_INCLUDE_DIR}
+    PRIVATE
+        ${MINI_INCLUDE_DIR}
         ${JSONCPP_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_DIR}
-        ${SQLITE3_INCLUDE_DIR}
 )
 target_link_libraries(etcore
     g3log
