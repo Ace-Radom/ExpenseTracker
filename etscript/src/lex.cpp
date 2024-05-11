@@ -1,8 +1,6 @@
 #include"etscript/lex.h"
 #include"core/log.h"
 
-#include<iostream>
-
 namespace etscript = rena::et::etscript;
 
 etscript::lex::lex(){
@@ -25,7 +23,6 @@ void etscript::lex::mount_src( const std::string& __s_src ){
 void etscript::lex::parse(){
     while ( this -> _it_src != this -> _s_src.end() )
     {
-        long long hash = 0;
         char token = *( this -> _it_src );
         token_data_t this_token_data = {};
         if ( token == '\n' )
@@ -34,6 +31,7 @@ void etscript::lex::parse(){
             this -> _i_line++;
             this -> _i_col = 1;
             this -> _it_src++;
+            continue;
         } // break line
         else if ( ( token >= 'a' && token <= 'z' ) || ( token >= 'A' && token <= 'Z' ) || ( token == '_' ) )
         {
@@ -42,10 +40,9 @@ void etscript::lex::parse(){
             std::string name;
             do {
                 name += token;
-                hash = hash * 147 + ( long long ) token;
                 token = this -> next();
             } while ( ( token >= 'a' && token <= 'z' ) || ( token >= 'A' && token <= 'Z' ) || ( token >= '0' && token <= '9' ) || ( token == '_' ) );
-            this_token_data.hash = hash;
+            this_token_data.hash = std::hash<std::string>{}( name );
             this_token_data.name = name;
 
             std::transform( name.begin() , name.end() , name.begin() , []( char c ) -> char { return std::tolower( c ); } );
@@ -98,6 +95,44 @@ void etscript::lex::parse(){
             this -> _v_tokens.push_back( this_token_data );
             continue;
         } // number
+        else if ( token == '"' )
+        {
+            this_token_data.type = Str;
+            this_token_data.line = this -> _i_line;
+            this_token_data.column = this -> _i_col;
+            std::string name;
+            token = this -> next();
+            while ( token != '"' && token != '\n' )
+            {
+                if ( token == '\\' )
+                {
+                    token = this -> next();
+                    if ( token == '"' )
+                    {
+                        name += '"';
+                    }
+                    else if ( token == 'n' )
+                    {
+                        name += "\n";
+                    }
+                    else
+                    {
+                        name = name + '\\' + token;
+                    }
+                } // escape chars
+                else
+                {
+                    name += token;
+                }
+                token = this -> next();
+            }
+            this_token_data.name = name;
+            this -> _v_tokens.push_back( this_token_data );
+            if ( token == '\n' )
+            {
+                continue;
+            } // no need to parse right qm, but linebreak does
+        } // str
         else if ( token == '/' )
         {
             token = this -> next();
@@ -116,7 +151,7 @@ void etscript::lex::parse(){
                 this -> _v_tokens.push_back( this_token_data );
             } // div
             continue;
-        } // '/' (comment / div)
+        } // '/' and '//' implementation
         else if ( token == '|' )
         {
             token = this -> next();
@@ -182,8 +217,8 @@ void etscript::lex::parse(){
                 this_token_data.line = this -> _i_line;
                 this_token_data.column = this -> _i_col - 1;
                 this -> _v_tokens.push_back( this_token_data );
+                continue;
             } // '<'
-            continue;
         } // '<' and '<=' implementation
         else if ( token == '>' )
         {
@@ -281,15 +316,23 @@ void etscript::lex::parse(){
 
         this -> next();
     }
+    this -> reset_token_get_pos();
     return;
 }
 
-void etscript::lex::trace(){
-    for ( const auto& it : this -> _v_tokens )
-    {
-        std::cout << it.type << "|" << it.hash << "|" << it.name << "|" << it.value << "|" << it.line << "|" << it.column << std::endl;
-    }
+size_t etscript::lex::token_len() const noexcept {
+    return this -> _v_tokens.size();
+}
+
+void etscript::lex::reset_token_get_pos(){
+    this -> _it_tokens = this -> _v_tokens.begin();
     return;
+}
+
+const etscript::lex::token_data_t etscript::lex::next_token(){
+    auto token = *( this -> _it_tokens );
+    this -> _it_tokens++;
+    return token;
 }
 
 char etscript::lex::next(){
