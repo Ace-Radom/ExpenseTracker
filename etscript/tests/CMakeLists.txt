@@ -16,7 +16,12 @@ add_executable(test_vm_basiccalcs ${CMAKE_CURRENT_SOURCE_DIR}/test_vm_basiccalcs
 target_include_directories(test_vm_basiccalcs PUBLIC ${ETSCRIPT_INCLUDE_DIR})
 target_link_libraries(test_vm_basiccalcs etscript)
 # test_vm_basiccalcs
+add_executable(test_vm_subroutine ${CMAKE_CURRENT_SOURCE_DIR}/test_vm_subroutine.cpp)
+target_include_directories(test_vm_subroutine PUBLIC ${ETSCRIPT_INCLUDE_DIR})
+target_link_libraries(test_vm_subroutine etscript)
+# test_vm_subroutine
 
 add_test(NAME etscript_test_vm_bitcalcs_judgements COMMAND test_vm_bitcalcs_judgements)
 add_test(NAME etscript_test_vm_jz_jnz COMMAND test_vm_jz_jnz)
 add_test(NAME etscript_test_vm_basiccalcs COMMAND test_vm_basiccalcs)
+add_test(NAME etscript_test_vm_subroutine COMMAND test_vm_subroutine)
