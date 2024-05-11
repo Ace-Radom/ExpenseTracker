@@ -32,6 +32,7 @@ def main():
             if f.endswith( ".cpp" ):
                 test_files.append( os.path.splitext( os.path.basename( f ) )[0] )
                 print( f" - { test_files[-1] }" )
+    sorted( test_files )
 
     for test_file in test_files:
         i_tests_build += update_tests_build( test_file )
