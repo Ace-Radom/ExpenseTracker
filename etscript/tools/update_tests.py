@@ -22,6 +22,9 @@ def main():
     i_tests_build = ""
     i_tests_declaration = ""
 
+    print( "Updating tests cmakelists:" )
+    print( f" - { source_cmakelists } -> { target_cmakelists }" )
+
     test_files = []
     print( "Found following tests:" )
     for root , ds , fs in os.walk( source_testdir ):
