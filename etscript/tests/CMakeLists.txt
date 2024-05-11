@@ -4,6 +4,14 @@
 #
 # If something is wrong, please fix it in etscript/tools/templates/update_tests/CMakeLists.txt.in first
 
+add_executable(test_lex_multiline ${CMAKE_CURRENT_SOURCE_DIR}/test_lex_multiline.cpp)
+target_include_directories(test_lex_multiline PUBLIC ${ETSCRIPT_INCLUDE_DIR})
+target_link_libraries(test_lex_multiline etscript)
+# test_lex_multiline
+add_executable(test_lex_singleline ${CMAKE_CURRENT_SOURCE_DIR}/test_lex_singleline.cpp)
+target_include_directories(test_lex_singleline PUBLIC ${ETSCRIPT_INCLUDE_DIR})
+target_link_libraries(test_lex_singleline etscript)
+# test_lex_singleline
 add_executable(test_vm_basiccalcs ${CMAKE_CURRENT_SOURCE_DIR}/test_vm_basiccalcs.cpp)
 target_include_directories(test_vm_basiccalcs PUBLIC ${ETSCRIPT_INCLUDE_DIR})
 target_link_libraries(test_vm_basiccalcs etscript)
@@ -21,6 +29,8 @@ target_include_directories(test_vm_subroutine PUBLIC ${ETSCRIPT_INCLUDE_DIR})
 target_link_libraries(test_vm_subroutine etscript)
 # test_vm_subroutine
 
+add_test(NAME etscript_test_lex_multiline COMMAND test_lex_multiline)
+add_test(NAME etscript_test_lex_singleline COMMAND test_lex_singleline)
 add_test(NAME etscript_test_vm_basiccalcs COMMAND test_vm_basiccalcs)
 add_test(NAME etscript_test_vm_bitcalcs_judgements COMMAND test_vm_bitcalcs_judgements)
 add_test(NAME etscript_test_vm_jz_jnz COMMAND test_vm_jz_jnz)
