@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "core/tools/**"
+      - "etscript/tests/**"
       - "etscript/tools/**"
 
 env:
