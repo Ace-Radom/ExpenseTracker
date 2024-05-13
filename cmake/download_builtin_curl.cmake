@@ -9,9 +9,9 @@ set(CURL_DISABLE_INSTALL ON CACHE STRING "" FORCE)
 # force disable curl install function
 set(BUILD_CURL_EXE OFF CACHE INTERNAL "" FORCE)
 set(BUILD_TESTING OFF)
-if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
-    cmake_policy(SET CMP0010 NEW)
-    cmake_policy(SET CMP0135 NEW)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+    cmake_policy(SET CMP0010 "NEW")
+    cmake_policy(SET CMP0135 "NEW")
 endif()
 include(FetchContent)
 FetchContent_Declare(curl
